@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { KanbanColumn } from "./KanbanColumn";
 import { TaskModal } from "./TaskModal";
+import { initialKanbanTasks } from "@/data/mockData";
 
 export interface Task {
   id: string;
@@ -69,7 +70,24 @@ const initialTasks: Task[] = [
 ];
 
 export const KanbanBoard = () => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    // Load tasks from localStorage or use initial data
+    const storedTasks = localStorage.getItem("kanbanTasks");
+    if (storedTasks) {
+      const parsedTasks = JSON.parse(storedTasks).map((task: Task) => ({
+        ...task,
+        comments: task.comments.map((c: any) => ({
+          ...c,
+          timestamp: new Date(c.timestamp),
+        })),
+      }));
+      setTasks(parsedTasks);
+    } else {
+      setTasks(initialKanbanTasks);
+    }
+  }, []);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
 
@@ -90,16 +108,20 @@ export const KanbanBoard = () => {
   const handleDrop = (status: Task["status"]) => {
     if (!draggedTask) return;
 
-    setTasks(
-      tasks.map((task) =>
-        task.id === draggedTask.id ? { ...task, status } : task
-      )
+    const updatedTasks = tasks.map((task) =>
+      task.id === draggedTask.id ? { ...task, status } : task
     );
+    setTasks(updatedTasks);
+    // Save to localStorage
+    localStorage.setItem("kanbanTasks", JSON.stringify(updatedTasks));
     setDraggedTask(null);
   };
 
   const updateTask = (updatedTask: Task) => {
-    setTasks(tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
+    const updatedTasks = tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task));
+    setTasks(updatedTasks);
+    // Save to localStorage
+    localStorage.setItem("kanbanTasks", JSON.stringify(updatedTasks));
     setSelectedTask(null);
   };
 

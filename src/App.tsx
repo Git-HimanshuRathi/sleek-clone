@@ -15,6 +15,8 @@ import ImportIssues from "./pages/ImportIssues";
 import InvitePeople from "./pages/InvitePeople";
 import LinkGitHub from "./pages/LinkGitHub";
 import NotFound from "./pages/NotFound";
+import Landing from "./pages/Landing";
+import TeamIssues from "./pages/TeamIssues";
 import Welcome from "./pages/onboarding/Welcome";
 import ThemeSelection from "./pages/onboarding/ThemeSelection";
 import SubscribeToUpdates from "./pages/onboarding/SubscribeToUpdates";
@@ -40,6 +42,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AppRoutes = () => {
   return (
     <Routes>
+      {/* Landing Page - Public */}
+      <Route path="/" element={<Landing />} />
+      
       {/* Onboarding Routes */}
       <Route path="/onboarding/welcome" element={<Welcome />} />
       <Route path="/onboarding/theme" element={<ThemeSelection />} />
@@ -52,7 +57,6 @@ const AppRoutes = () => {
 
       {/* Main App Routes - Protected by onboarding completion */}
       <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-        <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/my-issues" element={<MyIssues />} />
@@ -60,7 +64,9 @@ const AppRoutes = () => {
         <Route path="/projects" element={<Projects />} />
         <Route path="/views" element={<Views />} />
         <Route path="/more" element={<More />} />
-        <Route path="/team/issues" element={<Dashboard />} />
+        <Route path="/team/issues" element={<TeamIssues />} />
+        <Route path="/team/issues/active" element={<TeamIssues />} />
+        <Route path="/team/issues/backlog" element={<TeamIssues />} />
         <Route path="/team/projects" element={<Dashboard />} />
         <Route path="/team/views" element={<Dashboard />} />
         <Route path="/import" element={<ImportIssues />} />

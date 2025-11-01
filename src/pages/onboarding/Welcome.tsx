@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -12,12 +13,8 @@ const Welcome = () => {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-md w-full flex flex-col items-center text-center space-y-8">
         {/* Linear Logo */}
-        <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-foreground/10 flex items-center justify-center">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <div className="w-4 h-4 bg-background rounded-full"></div>
-            </div>
-          </div>
+        <div className="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+          <Logo size="lg" showText={false} />
         </div>
 
         {/* Title */}

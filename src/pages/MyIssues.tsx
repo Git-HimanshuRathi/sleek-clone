@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { NavLink, useParams, useLocation } from "react-router-dom";
-import { Filter, SlidersHorizontal, CircleDot, ChevronDown, ChevronUp } from "lucide-react";
+import { Filter, SlidersHorizontal, CircleDot, ChevronDown, LayoutGrid, Loader2, Minus, Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { NewIssueModal, Issue } from "@/components/NewIssueModal";
+import { Avatar } from "@/components/Avatar";
 
 const tabs = [
   { name: "My issues", href: "/my-issues" },
@@ -103,37 +105,48 @@ const MyIssues = () => {
   const filteredIssues = getFilteredIssues();
   const hasIssues = filteredIssues.length > 0;
 
+  const currentUser = "LB Lakshya Bagani";
+
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Tabs */}
-      <div className="border-b border-border px-4">
-        <nav className="flex items-center gap-1">
-          {tabs.map((tab) => (
-            <NavLink
-              key={tab.name}
-              to={tab.href}
-              end
-              className={({ isActive }) =>
-                cn(
-                  "px-3 py-3 text-sm font-medium border-b-2 transition-colors",
-                  isActive
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                )
-              }
-            >
-              {tab.name}
-            </NavLink>
-          ))}
-        </nav>
+      <div className="border-b border-border px-6 py-0">
+        <div className="flex items-center justify-between">
+          <nav className="flex items-center gap-1">
+            {tabs.map((tab) => (
+              <NavLink
+                key={tab.name}
+                to={tab.href}
+                end
+                className={({ isActive }) =>
+                  cn(
+                    "px-3 py-2.5 text-sm font-medium rounded-md transition-colors",
+                    isActive
+                      ? "bg-surface text-foreground"
+                      : tab.name === "My issues"
+                      ? "text-foreground hover:bg-surface/30"
+                      : "text-muted-foreground hover:text-foreground hover:bg-surface/30"
+                  )
+                }
+              >
+                {tab.name}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Right side view icon */}
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+            <LayoutGrid className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Filter and Display buttons */}
-      <div className="border-b border-border flex items-center justify-between px-4 py-2">
+      <div className="border-b border-border flex items-center justify-between px-6 py-2.5">
         <Button
           variant="ghost"
           size="sm"
-          className="gap-2 h-8 text-muted-foreground hover:text-foreground"
+          className="gap-1.5 h-7 text-muted-foreground hover:text-foreground px-2"
         >
           <Filter className="w-3.5 h-3.5" />
           <span className="text-xs">Filter</span>
@@ -141,7 +154,7 @@ const MyIssues = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="gap-2 h-8 text-muted-foreground hover:text-foreground"
+          className="gap-1.5 h-7 bg-surface hover:bg-surface-hover text-foreground rounded-md px-2.5"
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span className="text-xs">Display</span>
@@ -150,7 +163,7 @@ const MyIssues = () => {
 
       {/* Content */}
       {hasIssues ? (
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-3">
           {statusOrder.map((status) => {
             const statusIssues = getIssuesByStatus(status);
             if (statusIssues.length === 0) return null;
@@ -158,36 +171,42 @@ const MyIssues = () => {
             const isExpanded = expandedSections[status];
 
             return (
-              <div key={status} className="mb-4">
+              <div key={status} className="mb-3">
                 <button
                   onClick={() => toggleSection(status)}
-                  className="flex items-center gap-2 w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1.5 w-full py-1.5 text-sm text-foreground transition-colors hover:bg-surface/30 rounded-md px-1"
                 >
-                  {isExpanded ? (
-                    <ChevronDown className="w-4 h-4" />
-                  ) : (
-                    <ChevronUp className="w-4 h-4" />
-                  )}
+                  <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", !isExpanded && "rotate-[-90deg]")} />
+                  <Loader2 className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="font-medium">{status}</span>
-                  <span className="text-xs">{statusIssues.length}</span>
+                  <span className="text-xs text-muted-foreground">{statusIssues.length}</span>
                 </button>
 
                 {isExpanded && (
-                  <div className="ml-6 space-y-1">
+                  <div className="ml-5 mt-1">
                     {statusIssues.map((issue) => (
                       <div
                         key={issue.id}
-                        className="flex items-center gap-3 px-2 py-1.5 rounded-md hover:bg-surface transition-colors"
+                        className="flex items-center gap-2.5 px-1 py-1.5 rounded-md hover:bg-surface transition-colors group"
                       >
-                        <div className="w-4 h-4 rounded border border-border border-dashed"></div>
-                        <div className="flex-1 flex items-center gap-2">
-                          <span className="text-sm text-foreground">{issue.issueNumber}</span>
-                          <span className="text-sm text-muted-foreground">{issue.title}</span>
-                        </div>
+                        {/* Checkbox on far left */}
+                        <Checkbox className="h-3.5 w-3.5" />
+                        
+                        {/* Dashed line icon */}
+                        <Minus className="w-4 h-4 text-foreground" strokeDasharray="2 2" />
+                        
+                        {/* Issue ID */}
+                        <span className="text-sm font-mono text-muted-foreground min-w-[50px]">{issue.issueNumber}</span>
+                        
+                        {/* Light gray circular icon */}
+                        <Circle className="w-3 h-3 text-muted-foreground" fill="currentColor" />
+                        
+                        {/* Issue title */}
+                        <span className="text-sm text-foreground flex-1">{issue.title}</span>
+                        
+                        {/* Assignee avatar and date */}
                         <div className="flex items-center gap-2">
-                          <div className="w-5 h-5 rounded bg-primary flex items-center justify-center text-[10px] font-medium text-primary-foreground">
-                            LB
-                          </div>
+                          <Avatar name={issue.assignee} size="xs" />
                           <span className="text-xs text-muted-foreground">{formatDate(issue.createdAt)}</span>
                         </div>
                       </div>

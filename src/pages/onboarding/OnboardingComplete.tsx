@@ -10,7 +10,7 @@ const OnboardingComplete = () => {
 
   const handleOpenLinear = () => {
     completeOnboarding();
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { NewIssueModal } from "@/components/NewIssueModal";
+import { InvitePeopleModal } from "@/components/InvitePeopleModal";
 
 const mainNav = [
   { name: "Inbox", href: "/inbox", icon: Inbox },
@@ -47,6 +48,7 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
   const [teamsExpanded, setTeamsExpanded] = useState(true);
   const [teamExpanded, setTeamExpanded] = useState(true);
   const [isNewIssueModalOpen, setIsNewIssueModalOpen] = useState(false);
+  const [isInvitePeopleModalOpen, setIsInvitePeopleModalOpen] = useState(false);
 
   return (
     <>
@@ -211,23 +213,42 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
             Try
           </div>
           <div className="space-y-0.5">
-            {tryNav.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-2.5 px-2 py-1.5 rounded-md transition-colors",
-                    isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-surface"
-                  )
-                }
-              >
-                <item.icon className="w-4 h-4" />
-                <span>{item.name}</span>
-              </NavLink>
-            ))}
+            {tryNav.map((item) => {
+              // Special handling for "Invite people" - use button instead of NavLink
+              if (item.name === "Invite people") {
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => setIsInvitePeopleModalOpen(true)}
+                    className={cn(
+                      "w-full flex items-center gap-2.5 px-2 py-1.5 rounded-md transition-colors text-sidebar-foreground hover:bg-surface"
+                    )}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </button>
+                );
+              }
+              
+              // Regular NavLink for other items
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-2.5 px-2 py-1.5 rounded-md transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground hover:bg-surface"
+                    )
+                  }
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.name}</span>
+                </NavLink>
+              );
+            })}
           </div>
         </div>
       </nav>
@@ -247,6 +268,10 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
     <NewIssueModal
       open={isNewIssueModalOpen}
       onOpenChange={setIsNewIssueModalOpen}
+    />
+    <InvitePeopleModal
+      open={isInvitePeopleModalOpen}
+      onOpenChange={setIsInvitePeopleModalOpen}
     />
     </>
   );
