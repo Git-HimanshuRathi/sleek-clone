@@ -1,103 +1,518 @@
 import { useState, useEffect } from "react";
-import { FolderKanban } from "lucide-react";
+import { 
+  Link2, 
+  LayoutGrid, 
+  Filter, 
+  SlidersHorizontal,
+  Box,
+  Plus,
+  User,
+  Calendar,
+  MoreHorizontal,
+  Check,
+  AlertCircle,
+  BarChart3,
+  BarChart2,
+  BarChart,
+  Inbox,
+  CheckSquare,
+  PlayCircle,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { initialProjects, Project } from "@/data/mockData";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { NewProjectModal } from "@/components/NewProjectModal";
+import { cn } from "@/lib/utils";
+
+// Dashed circle icon component
+const DashedCircle = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle
+      cx="7"
+      cy="7"
+      r="6"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeDasharray="2 2"
+      fill="none"
+    />
+  </svg>
+);
+
+// Orange circle icon component (hollow - just border with gap)
+const OrangeCircle = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle
+      cx="7"
+      cy="7"
+      r="6"
+      stroke="#F59E0B"
+      strokeWidth="1.5"
+      fill="none"
+      strokeDasharray="8 3"
+      strokeDashoffset="2"
+    />
+  </svg>
+);
+
+interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  health?: string;
+  priority?: string;
+  status?: string;
+  lead?: string;
+  targetDate?: string;
+  startDate?: string;
+  members?: string[];
+  labels?: string[];
+  milestones?: any[];
+}
+
+const defaultPriorityOptions = [
+  { value: "No priority", icon: "0", color: "text-muted-foreground", number: 0 },
+  { value: "Urgent", icon: AlertCircle, color: "text-red-500", number: 1 },
+  { value: "High", icon: BarChart3, color: "text-orange-500", number: 2 },
+  { value: "Medium", icon: BarChart2, color: "text-yellow-500", number: 3 },
+  { value: "Low", icon: BarChart, color: "text-blue-500", number: 4 },
+];
+
+const defaultStatusOptions = [
+  { value: "Backlog", icon: OrangeCircle, color: "text-orange-500" },
+  { value: "Planned", icon: CheckSquare, color: "text-muted-foreground" },
+  { value: "In Progress", icon: PlayCircle, color: "text-yellow-500" },
+  { value: "Completed", icon: CheckCircle2, color: "text-primary" },
+  { value: "Cancelled", icon: XCircle, color: "text-red-500" },
+];
 
 const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [activeView, setActiveView] = useState<"all" | "new-view">("all");
+  const [openPriorityDropdown, setOpenPriorityDropdown] = useState<string | null>(null);
+  const [openStatusDropdown, setOpenStatusDropdown] = useState<string | null>(null);
+  const [openDatePicker, setOpenDatePicker] = useState<string | null>(null);
+  const [selectedDates, setSelectedDates] = useState<Record<string, Date | undefined>>({});
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
 
-  useEffect(() => {
+  const loadProjects = () => {
     const stored = localStorage.getItem("projects");
     if (stored) {
-      setProjects(JSON.parse(stored));
+      const parsedProjects = JSON.parse(stored);
+      // Ensure all projects have required fields with defaults
+      const projectsWithDefaults = parsedProjects.map((project: Project) => ({
+        ...project,
+        color: project.color || "#5E6AD2",
+        icon: project.icon || "📁",
+        health: project.health || "No updates",
+      }));
+      setProjects(projectsWithDefaults);
     } else {
-      setProjects(initialProjects);
+      setProjects([]);
     }
+  };
+
+  useEffect(() => {
+    loadProjects();
   }, []);
 
-  const getProgressPercentage = (project: Project) => {
-    if (project.issueCount === 0) return 0;
-    return Math.round((project.completedIssueCount / project.issueCount) * 100);
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return `${months[date.getMonth()]} ${date.getDate()}`;
+  };
+
+  const updateProjectPriority = (projectId: string, priority: string) => {
+    const updatedProjects = projects.map(project => 
+      project.id === projectId ? { ...project, priority } : project
+    );
+    setProjects(updatedProjects);
+    localStorage.setItem("projects", JSON.stringify(updatedProjects));
+    setOpenPriorityDropdown(null);
+  };
+
+  const updateProjectStatus = (projectId: string, status: string) => {
+    const updatedProjects = projects.map(project => 
+      project.id === projectId ? { ...project, status } : project
+    );
+    setProjects(updatedProjects);
+    localStorage.setItem("projects", JSON.stringify(updatedProjects));
+    setOpenStatusDropdown(null);
+  };
+
+  const updateProjectDate = (projectId: string, date: Date | undefined) => {
+    setSelectedDates(prev => ({ ...prev, [projectId]: date }));
+    if (date) {
+      const updatedProjects = projects.map(project => 
+        project.id === projectId ? { ...project, targetDate: date.toISOString() } : project
+      );
+      setProjects(updatedProjects);
+      localStorage.setItem("projects", JSON.stringify(updatedProjects));
+    }
+    setOpenDatePicker(null);
+  };
+
+  const getPriorityDisplay = (priority?: string) => {
+    if (!priority || priority === "No priority") return "";
+    return priority;
+  };
+
+  const getAllPriorities = () => {
+    const customPriorities = JSON.parse(localStorage.getItem("customPriorities") || "[]");
+    return [...defaultPriorityOptions, ...customPriorities];
+  };
+
+  const getAllStatuses = () => {
+    const customStatuses = JSON.parse(localStorage.getItem("customStatuses") || "[]");
+    return [...defaultStatusOptions, ...customStatuses];
   };
 
   return (
     <div className="h-full flex flex-col bg-background">
-      <div className="border-b border-border px-6 py-4">
-        <h1 className="text-lg font-semibold">Projects</h1>
+      {/* Top Navigation Bar with Tabs */}
+      <div className="border-b border-border px-6 py-2.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <nav className="flex items-center gap-1">
+              {/* Projects - Just text, not clickable, more prominent */}
+              <span className="text-base font-semibold text-foreground">Projects</span>
+              
+              {/* All projects - Button, no navigation */}
+              <button
+                onClick={() => setActiveView("all")}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                  activeView === "all"
+                    ? "bg-surface text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-surface/30"
+                )}
+              >
+                <Box className="w-4 h-4" />
+                All projects
+              </button>
+              
+              {/* New view - Button */}
+              <button
+                onClick={() => setActiveView("new-view")}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                  activeView === "new-view"
+                    ? "bg-surface text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-surface/30"
+                )}
+              >
+                <Plus className="w-4 h-4" />
+                New view
+              </button>
+            </nav>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+              <Link2 className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="h-7 px-3 text-sm text-foreground hover:text-foreground hover:bg-surface/30"
+              onClick={() => setIsNewProjectModalOpen(true)}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Add project
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {projects.length > 0 ? (
-        <div className="flex-1 overflow-y-auto px-6 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => {
-              const progress = getProgressPercentage(project);
-              return (
-                <div
-                  key={project.id}
-                  className="border border-border rounded-lg p-4 bg-surface hover:bg-surface-hover transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
-                      style={{ backgroundColor: `${project.color}20`, color: project.color }}
+      {/* Filter and Display Bar */}
+      <div className="border-b border-border flex items-center justify-between px-6 py-2.5">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1.5 h-7 text-muted-foreground hover:text-foreground px-2"
+        >
+          <Filter className="w-3.5 h-3.5" />
+          <span className="text-xs">Filter</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1.5 h-7 text-muted-foreground hover:text-foreground px-2.5"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <span className="text-xs">Display</span>
+        </Button>
+      </div>
+
+      {/* Project Table */}
+      <div className="flex-1 overflow-y-auto">
+        {projects.length > 0 ? (
+          <div className="px-6 py-4">
+            <table className="w-full border-collapse table-fixed">
+              <colgroup>
+                <col style={{ width: "auto" }} />
+                <col style={{ width: "150px" }} />
+                <col style={{ width: "95px" }} />
+                <col style={{ width: "125px" }} />
+                <col style={{ width: "120px" }} />
+                <col style={{ width: "100px" }} />
+              </colgroup>
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="text-left py-3 px-4 text-base font-medium text-foreground">Name</th>
+                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Health</th>
+                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Priority</th>
+                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Lead</th>
+                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Target date</th>
+                  <th className="text-right py-3 pl-0 pr-0.5 text-base font-medium text-foreground whitespace-nowrap">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projects.map((project) => {
+                  const targetDateFormatted = formatDate(project.targetDate);
+                  const selectedDate = selectedDates[project.id] || (project.targetDate ? new Date(project.targetDate) : undefined);
+                  
+                  return (
+                    <tr
+                      key={project.id}
+                      className="hover:bg-surface/50 transition-colors"
                     >
-                      {project.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">{project.name}</h3>
-                      <p className="text-xs text-muted-foreground truncate">{project.description}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">
-                        {project.completedIssueCount} / {project.issueCount} issues
-                      </span>
-                      <span className="font-medium text-foreground">{progress}%</span>
-                    </div>
-                    <div className="w-full bg-background rounded-full h-1.5">
-                      <div
-                        className="h-1.5 rounded-full transition-all"
-                        style={{
-                          width: `${progress}%`,
-                          backgroundColor: project.color,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-border">
-                    <span
-                      className="text-xs px-2 py-1 rounded"
-                      style={{
-                        backgroundColor: `${project.color}20`,
-                        color: project.color,
-                      }}
-                    >
-                      {project.status}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+                      {/* Name - Takes most space, no icon */}
+                      <td className="py-3 px-4">
+                        <span className="text-sm text-foreground">{project.name}</span>
+                      </td>
+                      
+                      {/* Health - Compact */}
+                      <td className="py-3 px-0">
+                        <div className="flex items-center justify-end gap-0.5">
+                          <DashedCircle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                          <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                            {project.health || "No updates"}
+                          </span>
+                        </div>
+                      </td>
+                      
+                      {/* Priority - Compact with dropdown */}
+                      <td className="py-3 px-0">
+                        <div className="flex justify-end">
+                          <DropdownMenu 
+                            open={openPriorityDropdown === project.id} 
+                            onOpenChange={(open) => setOpenPriorityDropdown(open ? project.id : null)}
+                          >
+                            <DropdownMenuTrigger asChild>
+                              <button className="flex items-center text-[11px] text-muted-foreground hover:text-foreground border-0 bg-transparent p-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                {project.priority && project.priority !== "No priority" ? (
+                                  (() => {
+                                    const selectedPriority = getAllPriorities().find(p => p.value === project.priority);
+                                    if (selectedPriority && typeof selectedPriority.icon !== "string") {
+                                      const PriorityIcon = selectedPriority.icon;
+                                      return (
+                                        <PriorityIcon className={cn("h-3 w-3 flex-shrink-0", selectedPriority.color)} />
+                                      );
+                                    }
+                                    return <MoreHorizontal className="h-3 w-3" />;
+                                  })()
+                                ) : (
+                                  <MoreHorizontal className="h-3 w-3" />
+                                )}
+                              </button>
+                            </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" className="w-[280px]">
+                            <div className="px-2 py-1.5 text-xs text-muted-foreground border-b border-border">
+                              Change priority...
+                              <span className="ml-2 text-[10px]">then P</span>
+                            </div>
+                            {getAllPriorities().map((option) => {
+                              const IconComponent = typeof option.icon === "string" ? null : option.icon;
+                              const isSelected = project.priority === option.value;
+                              
+                              return (
+                                <DropdownMenuItem
+                                  key={option.value}
+                                  onClick={() => updateProjectPriority(project.id, option.value)}
+                                  className={cn(
+                                    "gap-3 px-3 py-2 cursor-pointer",
+                                    isSelected && "bg-accent text-accent-foreground"
+                                  )}
+                                >
+                                  {typeof option.icon === "string" ? (
+                                    <span className={cn("text-xs w-5 text-center", option.color)}>
+                                      {option.icon}
+                                    </span>
+                                  ) : IconComponent ? (
+                                    <IconComponent className={cn("h-4 w-4", option.color)} />
+                                  ) : null}
+                                  <span className="flex-1">{option.value}</span>
+                                  {isSelected && (
+                                    <Check className="h-4 w-4 text-primary" />
+                                  )}
+                                  <span className="text-xs text-muted-foreground ml-2">{option.number}</span>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </td>
+                      
+                      {/* Lead - Compact */}
+                      <td className="py-3 px-0">
+                        <div className="flex items-center justify-end gap-0.5">
+                          {project.lead ? (
+                            <>
+                              <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-[9px] font-medium text-primary-foreground flex-shrink-0">
+                                {project.lead.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                              </div>
+                              <span className="text-[11px] text-foreground whitespace-nowrap">{project.lead}</span>
+                            </>
+                          ) : (
+                            <>
+                              <User className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                              <span className="text-[11px] text-muted-foreground whitespace-nowrap">No lead</span>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                      
+                      {/* Target date - Compact with date picker */}
+                      <td className="py-3 px-0">
+                        <div className="flex justify-end">
+                          <Popover 
+                            open={openDatePicker === project.id} 
+                            onOpenChange={(open) => setOpenDatePicker(open ? project.id : null)}
+                          >
+                            <PopoverTrigger asChild>
+                              <button className="flex items-center text-[11px] text-muted-foreground hover:text-foreground border-0 bg-transparent p-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                                {targetDateFormatted ? (
+                                  <span>{targetDateFormatted}</span>
+                                ) : (
+                                  <Calendar className="h-3 w-3" />
+                                )}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <CalendarComponent
+                                mode="single"
+                                selected={selectedDate}
+                                onSelect={(date) => updateProjectDate(project.id, date)}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </div>
+                      </td>
+                      
+                      {/* Status - Compact with dropdown */}
+                      <td className="py-3 pl-0 pr-0.5">
+                        <div className="flex justify-end">
+                          <DropdownMenu 
+                            open={openStatusDropdown === project.id} 
+                            onOpenChange={(open) => setOpenStatusDropdown(open ? project.id : null)}
+                          >
+                            <DropdownMenuTrigger asChild>
+                              <button className="flex items-center gap-0.5 text-[11px] text-muted-foreground hover:text-foreground border-0 bg-transparent p-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                              {project.status ? (
+                                (() => {
+                                  const selectedStatus = getAllStatuses().find(s => s.value === project.status);
+                                  const StatusIcon = selectedStatus?.icon || DashedCircle;
+                                  return (
+                                    <StatusIcon className={cn("h-3 w-3 flex-shrink-0", selectedStatus?.color)} />
+                                  );
+                                })()
+                              ) : (
+                                <>
+                                  <DashedCircle className="h-3 w-3 flex-shrink-0" />
+                                  <span className="whitespace-nowrap text-[11px]">0%</span>
+                                </>
+                              )}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="start" className="w-[280px]">
+                            <div className="px-2 py-1.5 text-xs text-muted-foreground border-b border-border">
+                              Change status...
+                              <span className="ml-2 text-[10px]">then S</span>
+                            </div>
+                            {getAllStatuses().map((option) => {
+                              const IconComponent = option.icon;
+                              const isSelected = project.status === option.value;
+                              
+                              return (
+                                <DropdownMenuItem
+                                  key={option.value}
+                                  onClick={() => updateProjectStatus(project.id, option.value)}
+                                  className={cn(
+                                    "gap-3 px-3 py-2 cursor-pointer flex items-center",
+                                    isSelected && "bg-accent text-accent-foreground"
+                                  )}
+                                >
+                                  <IconComponent className={cn("h-4 w-4", option.color)} />
+                                  {!isSelected && <span className="flex-1">{option.value}</span>}
+                                  {isSelected && (
+                                    <Check className="h-4 w-4 text-primary ml-auto" />
+                                  )}
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </div>
-      ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4 max-w-md text-center">
-            <FolderKanban className="w-16 h-16 text-muted-foreground/40" />
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-foreground">No projects yet</h2>
-              <p className="text-muted-foreground text-sm">
-                Projects help you organize and track related issues. Create your first project to get started.
-              </p>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4 max-w-md text-center">
+              <Box className="w-16 h-16 text-muted-foreground/40" />
+              <div className="space-y-2">
+                <h2 className="text-xl font-semibold text-foreground">No projects yet</h2>
+                <p className="text-muted-foreground text-sm">
+                  Projects help you organize and track related issues. Create your first project to get started.
+                </p>
+              </div>
+              <Button 
+                className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground"
+                onClick={() => setIsNewProjectModalOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create project
+              </Button>
             </div>
-            <Button className="mt-4">Create project</Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <NewProjectModal
+        open={isNewProjectModalOpen}
+        onOpenChange={setIsNewProjectModalOpen}
+        onProjectCreated={loadProjects}
+      />
     </div>
   );
 };
 
 export default Projects;
-
