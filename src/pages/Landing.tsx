@@ -22,11 +22,13 @@ const Landing = () => {
   const { isCompleted } = useOnboarding();
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Redirect to dashboard if onboarding is already completed
+  // Only redirect to dashboard if onboarding is completed
+  // If not completed, show landing page (user can start onboarding via "Start building" button)
   useEffect(() => {
     if (isCompleted) {
       navigate("/dashboard", { replace: true });
     }
+    // If not completed, stay on landing page - don't redirect
   }, [isCompleted, navigate]);
 
   // Trigger animation on mount

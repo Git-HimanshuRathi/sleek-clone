@@ -84,16 +84,6 @@ const JoinOrCreateTeam = () => {
         >
           Continue
         </Button>
-
-        {/* Progress Dots */}
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((dot) => (
-            <div
-              key={dot}
-              className={dot === 4 ? "w-2 h-2 rounded-full bg-foreground" : "w-2 h-2 rounded-full bg-muted-foreground/30"}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

@@ -129,8 +129,13 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
   const { resetOnboarding } = useOnboarding();
 
   const handleLogout = () => {
-    resetOnboarding();
-    navigate("/");
+    // Clear localStorage immediately to prevent any redirects
+    localStorage.removeItem("linear-onboarding-completed");
+    localStorage.removeItem("linear-onboarding-step");
+    
+    // Use window.location for immediate hard navigation
+    // This bypasses React Router completely and prevents ProtectedRoute from intercepting
+    window.location.href = "/";
   };
 
   return (

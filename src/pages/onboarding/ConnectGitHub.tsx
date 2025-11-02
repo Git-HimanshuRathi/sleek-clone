@@ -10,11 +10,11 @@ const ConnectGitHub = () => {
   const handleAuthenticate = () => {
     // Handle GitHub authentication
     console.log("Authenticating with GitHub...");
-    navigate("/onboarding/team");
+    navigate("/onboarding/invite");
   };
 
   const handleLater = () => {
-    navigate("/onboarding/team");
+    navigate("/onboarding/invite");
   };
 
   return (
