@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Link2, 
   LayoutGrid, 
@@ -106,6 +107,7 @@ const defaultStatusOptions = [
 ];
 
 const Projects = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeView, setActiveView] = useState<"all" | "new-view">("all");
   const [openPriorityDropdown, setOpenPriorityDropdown] = useState<string | null>(null);
@@ -300,7 +302,12 @@ const Projects = () => {
                     >
                       {/* Name - Takes most space, no icon */}
                       <td className="py-3 px-4">
-                        <span className="text-sm text-foreground">{project.name}</span>
+                        <button
+                          onClick={() => navigate(`/projects/${project.id}`)}
+                          className="text-sm text-foreground hover:text-foreground hover:underline cursor-pointer text-left"
+                        >
+                          {project.name}
+                        </button>
                       </td>
                       
                       {/* Health - Compact */}
@@ -379,7 +386,7 @@ const Projects = () => {
                       {/* Lead - Compact */}
                       <td className="py-3 px-0">
                         <div className="flex items-center justify-end gap-0.5">
-                          {project.lead ? (
+                          {project.lead && typeof project.lead === "string" ? (
                             <>
                               <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-[9px] font-medium text-primary-foreground flex-shrink-0">
                                 {project.lead.split(" ").map(n => n[0]).join("").slice(0, 2)}

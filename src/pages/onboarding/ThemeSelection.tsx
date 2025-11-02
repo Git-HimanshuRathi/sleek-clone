@@ -48,7 +48,7 @@ const ThemeSelection = () => {
             <Card
               onClick={() => handleThemeSelect("light")}
               className={cn(
-                "cursor-pointer transition-all border-2 p-6 hover:border-primary/50",
+                "cursor-pointer transition-all border-2 p-6 hover:border-border",
                 selectedTheme === "light" ? "border-primary" : "border-border"
               )}
             >
@@ -68,7 +68,7 @@ const ThemeSelection = () => {
             <Card
               onClick={() => handleThemeSelect("dark")}
               className={cn(
-                "cursor-pointer transition-all border-2 p-6 hover:border-primary/50",
+                "cursor-pointer transition-all border-2 p-6 hover:border-border",
                 selectedTheme === "dark" ? "border-primary" : "border-border"
               )}
             >

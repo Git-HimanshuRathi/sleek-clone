@@ -2,6 +2,8 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +72,7 @@ export interface Project {
   targetDate?: string;
   labels?: string[];
   dependencies?: string[];
+  links?: Array<{ id: string; url: string; title: string }>;
   milestones?: Milestone[];
   health?: string;
   color?: string;
@@ -223,6 +226,8 @@ export const NewProjectModal = ({ open, onOpenChange, onProjectCreated }: NewPro
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-full p-0 gap-0 bg-surface border-border rounded-lg [&>button]:hidden">
+        <DialogTitle className="sr-only">New project</DialogTitle>
+        <DialogDescription className="sr-only">Create a new project</DialogDescription>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
