@@ -65,6 +65,7 @@ import {
   Copy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { db } from "@/db/database";
 
 export interface Link {
   id: string;
@@ -335,6 +336,7 @@ export const NewIssueModal = ({ open, onOpenChange, onIssueCreated }: NewIssueMo
   const handleCreateIssue = () => {
     if (!issueTitle.trim()) return;
 
+    const now = new Date().toISOString();
     const newIssue: Issue = {
       id: Date.now().toString(),
       title: issueTitle.trim(),
@@ -346,14 +348,24 @@ export const NewIssueModal = ({ open, onOpenChange, onIssueCreated }: NewIssueMo
       labels,
       links,
       subIssues: subIssues.filter(s => s.saved),
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now, // Ensure updatedAt is set
       issueNumber: generateIssueNumber(),
     };
 
-    // Save to localStorage
-    const existingIssues = JSON.parse(localStorage.getItem("issues") || "[]");
-    existingIssues.push(newIssue);
-    localStorage.setItem("issues", JSON.stringify(existingIssues));
+    // Save to SQLite database
+    try {
+      db.insertIssue(newIssue);
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('issuesUpdated'));
+    } catch (error) {
+      console.error('Error saving issue to database:', error);
+      // Fallback to localStorage if database fails
+      const existingIssues = JSON.parse(localStorage.getItem("issues") || "[]");
+      existingIssues.push(newIssue);
+      localStorage.setItem("issues", JSON.stringify(existingIssues));
+      window.dispatchEvent(new Event('issuesUpdated'));
+    }
 
     // Notify parent component
     if (onIssueCreated) {

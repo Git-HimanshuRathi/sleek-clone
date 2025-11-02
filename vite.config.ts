@@ -15,4 +15,15 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    exclude: ['sql.js'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
+  },
+  // Handle sql.js as a CommonJS module
+  ssr: {
+    noExternal: ['sql.js'],
+  },
+  assetsInclude: ['**/*.wasm'],
 }));

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { KanbanColumn } from "./KanbanColumn";
 import { TaskModal } from "./TaskModal";
+import { db } from "@/db/database";
 
 export interface Task {
   id: string;
@@ -72,19 +73,37 @@ export const KanbanBoard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    // Load tasks from localStorage only (no dummy data)
-    const storedTasks = localStorage.getItem("kanbanTasks");
-    if (storedTasks) {
-      const parsedTasks = JSON.parse(storedTasks).map((task: Task) => ({
-        ...task,
-        comments: task.comments.map((c: any) => ({
-          ...c,
-          timestamp: new Date(c.timestamp),
-        })),
-      }));
-      setTasks(parsedTasks);
-    } else {
-      setTasks([]); // Start with empty kanban board
+    // Load tasks from SQLite database
+    try {
+      const storedTasks = db.getKanbanTasks();
+      if (storedTasks && storedTasks.length > 0) {
+        const parsedTasks = storedTasks.map((task: Task) => ({
+          ...task,
+          comments: task.comments.map((c: any) => ({
+            ...c,
+            timestamp: new Date(c.timestamp),
+          })),
+        }));
+        setTasks(parsedTasks);
+      } else {
+        setTasks([]); // Start with empty kanban board
+      }
+    } catch (error) {
+      console.error('Error loading kanban tasks from database:', error);
+      // Fallback to localStorage
+      const storedTasks = localStorage.getItem("kanbanTasks");
+      if (storedTasks) {
+        const parsedTasks = JSON.parse(storedTasks).map((task: Task) => ({
+          ...task,
+          comments: task.comments.map((c: any) => ({
+            ...c,
+            timestamp: new Date(c.timestamp),
+          })),
+        }));
+        setTasks(parsedTasks);
+      } else {
+        setTasks([]);
+      }
     }
   }, []);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -111,16 +130,33 @@ export const KanbanBoard = () => {
       task.id === draggedTask.id ? { ...task, status } : task
     );
     setTasks(updatedTasks);
-    // Save to localStorage
-    localStorage.setItem("kanbanTasks", JSON.stringify(updatedTasks));
+    
+    // Save to SQLite database
+    try {
+      const updatedTask = updatedTasks.find((t) => t.id === draggedTask.id);
+      if (updatedTask) {
+        db.insertKanbanTask(updatedTask);
+      }
+    } catch (error) {
+      console.error('Error saving kanban task to database:', error);
+      // Fallback to localStorage
+      localStorage.setItem("kanbanTasks", JSON.stringify(updatedTasks));
+    }
     setDraggedTask(null);
   };
 
   const updateTask = (updatedTask: Task) => {
     const updatedTasks = tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task));
     setTasks(updatedTasks);
-    // Save to localStorage
-    localStorage.setItem("kanbanTasks", JSON.stringify(updatedTasks));
+    
+    // Save to SQLite database
+    try {
+      db.insertKanbanTask(updatedTask);
+    } catch (error) {
+      console.error('Error updating kanban task in database:', error);
+      // Fallback to localStorage
+      localStorage.setItem("kanbanTasks", JSON.stringify(updatedTasks));
+    }
     setSelectedTask(null);
   };
 

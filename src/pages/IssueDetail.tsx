@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import {
   ChevronRight,
   Star,
@@ -48,6 +49,8 @@ import {
 import { cn } from "@/lib/utils";
 import { Issue } from "@/components/NewIssueModal";
 import { Avatar } from "@/components/Avatar";
+import { CommentsSection, Comment } from "@/components/CommentsSection";
+import { db } from "@/db/database";
 
 // Dashed circle icon component (hollow - just border with gap)
 const DashedCircle = ({ className }: { className?: string }) => (
@@ -123,9 +126,10 @@ const IssueDetail = () => {
   const navigate = useNavigate();
   const [issue, setIssue] = useState<Issue | null>(null);
   const [description, setDescription] = useState("");
-  const [comment, setComment] = useState("");
   const [activityExpanded, setActivityExpanded] = useState(true);
   const [propertiesExpanded, setPropertiesExpanded] = useState(true);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const currentUser = "LB Lakshya Bagani";
 
   const [statusSearchOpen, setStatusSearchOpen] = useState(false);
   const [statusSearchValue, setStatusSearchValue] = useState("");
@@ -142,40 +146,192 @@ const IssueDetail = () => {
     }
   }, [issueId]);
 
+  // Set dynamic page title with issue number
+  usePageTitle(issue?.issueNumber ? `${issue.issueNumber} - ${issue.title}` : 'Issue');
+
   const loadIssue = () => {
-    // Try to load from API data or localStorage
-    const storedIssues = JSON.parse(localStorage.getItem("issues") || "[]");
-    const foundIssue = storedIssues.find((i: Issue) => i.id === issueId);
-    
-    if (foundIssue) {
-      setIssue(foundIssue);
-      setDescription(foundIssue.description || "");
-    } else {
-      // Try to find in current issues list from API
-      const allIssues = JSON.parse(localStorage.getItem("issues") || "[]");
-      const apiIssue = allIssues.find((i: any) => i.id === issueId);
-      if (apiIssue) {
-        setIssue({
-          ...apiIssue,
-          description: apiIssue.description || "",
-          labels: apiIssue.labels || [],
-          links: apiIssue.links || [],
-          subIssues: apiIssue.subIssues || [],
-          createdAt: apiIssue.createdAt || new Date().toISOString(),
-        });
-        setDescription(apiIssue.description || "");
+    if (!issueId) return;
+
+    try {
+      // Try to load from SQLite first
+      const allIssues = db.getIssues();
+      const foundIssue = allIssues.find((i: any) => i.id === issueId);
+      
+      if (foundIssue) {
+        const normalizedIssue = {
+          ...foundIssue,
+          createdBy: foundIssue.createdBy || foundIssue.assignee || "Unknown",
+          labels: foundIssue.labels || [],
+          links: foundIssue.links || [],
+          subIssues: foundIssue.subIssues || [],
+          createdAt: foundIssue.createdAt || new Date().toISOString(),
+        };
+        setIssue(normalizedIssue as Issue);
+        setDescription(normalizedIssue.description || "");
+        // Load comments
+        const issueComments = foundIssue.comments || [];
+        setComments(Array.isArray(issueComments) ? issueComments : []);
+      }
+    } catch (error) {
+      console.error('Error loading issue from database:', error);
+      // Fallback to localStorage
+      const storedIssues = JSON.parse(localStorage.getItem("issues") || "[]");
+      const foundIssue = storedIssues.find((i: Issue) => i.id === issueId);
+      if (foundIssue) {
+        setIssue(foundIssue);
+        setDescription(foundIssue.description || "");
       }
     }
   };
 
   const updateIssue = (updates: Partial<Issue>) => {
     if (!issue) return;
-    const storedIssues = JSON.parse(localStorage.getItem("issues") || "[]");
-    const updatedIssues = storedIssues.map((i: Issue) =>
-      i.id === issue.id ? { ...i, ...updates } : i
-    );
-    localStorage.setItem("issues", JSON.stringify(updatedIssues));
-    setIssue({ ...issue, ...updates });
+    
+    // Track activity
+    const activityEntry = {
+      type: 'update',
+      field: Object.keys(updates)[0],
+      oldValue: issue[Object.keys(updates)[0] as keyof Issue],
+      newValue: updates[Object.keys(updates)[0] as keyof Issue],
+      user: currentUser,
+      timestamp: new Date().toISOString(),
+    };
+    
+    try {
+      // Update in SQLite
+      db.updateIssue(issue.id, updates);
+      setIssue({ ...issue, ...updates });
+      // Dispatch event to notify other components
+      window.dispatchEvent(new Event('issuesUpdated'));
+    } catch (error) {
+      console.error('Error updating issue in database:', error);
+      // Fallback to localStorage
+      const storedIssues = JSON.parse(localStorage.getItem("issues") || "[]");
+      const updatedIssues = storedIssues.map((i: Issue) =>
+        i.id === issue.id ? { ...i, ...updates } : i
+      );
+      localStorage.setItem("issues", JSON.stringify(updatedIssues));
+      setIssue({ ...issue, ...updates });
+      window.dispatchEvent(new Event('issuesUpdated'));
+    }
+  };
+
+  const handleAddComment = (content: string, mentions?: string[]) => {
+    if (!issue) return;
+    
+    const newComment: Comment = {
+      id: `comment-${Date.now()}`,
+      author: currentUser,
+      content,
+      timestamp: new Date().toISOString(),
+      mentions,
+    };
+    
+    const updatedComments = [...comments, newComment];
+    setComments(updatedComments);
+    
+    // Save to database
+    try {
+      db.updateIssue(issue.id, { comments: updatedComments } as any);
+      window.dispatchEvent(new Event('issuesUpdated'));
+    } catch (error) {
+      console.error('Error saving comment:', error);
+    }
+  };
+
+  const handleReply = (parentId: string, content: string, mentions?: string[]) => {
+    if (!issue) return;
+    
+    const reply: Comment = {
+      id: `comment-${Date.now()}`,
+      author: currentUser,
+      content,
+      timestamp: new Date().toISOString(),
+      parentId,
+      mentions,
+    };
+    
+    const updatedComments = [...comments, reply];
+    setComments(updatedComments);
+    
+    try {
+      db.updateIssue(issue.id, { comments: updatedComments } as any);
+      window.dispatchEvent(new Event('issuesUpdated'));
+    } catch (error) {
+      console.error('Error saving reply:', error);
+    }
+  };
+
+  const handleAddReaction = (commentId: string, emoji: string) => {
+    if (!issue) return;
+    
+    const updatedComments = comments.map(c => {
+      if (c.id === commentId) {
+        const reactions = c.reactions || [];
+        const existingReaction = reactions.find(r => r.emoji === emoji);
+        
+        if (existingReaction) {
+          // Add user to existing reaction
+          if (!existingReaction.users.includes(currentUser)) {
+            return {
+              ...c,
+              reactions: reactions.map(r => 
+                r.emoji === emoji 
+                  ? { ...r, users: [...r.users, currentUser] }
+                  : r
+              ),
+            };
+          }
+        } else {
+          // Create new reaction
+          return {
+            ...c,
+            reactions: [...reactions, { emoji, users: [currentUser] }],
+          };
+        }
+      }
+      return c;
+    });
+    
+    setComments(updatedComments);
+    
+    try {
+      db.updateIssue(issue.id, { comments: updatedComments } as any);
+      window.dispatchEvent(new Event('issuesUpdated'));
+    } catch (error) {
+      console.error('Error saving reaction:', error);
+    }
+  };
+
+  const handleRemoveReaction = (commentId: string, emoji: string) => {
+    if (!issue) return;
+    
+    const updatedComments = comments.map(c => {
+      if (c.id === commentId && c.reactions) {
+        const updatedReactions = c.reactions.map(r => {
+          if (r.emoji === emoji) {
+            const filteredUsers = r.users.filter(u => u !== currentUser);
+            return filteredUsers.length > 0 ? { ...r, users: filteredUsers } : null;
+          }
+          return r;
+        }).filter((r): r is { emoji: string; users: string[] } => r !== null);
+        
+        return {
+          ...c,
+          reactions: updatedReactions,
+        };
+      }
+      return c;
+    });
+    
+    setComments(updatedComments);
+    
+    try {
+      db.updateIssue(issue.id, { comments: updatedComments } as any);
+      window.dispatchEvent(new Event('issuesUpdated'));
+    } catch (error) {
+      console.error('Error removing reaction:', error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -316,13 +472,20 @@ const IssueDetail = () => {
               </button>
             </div>
 
-            {/* Activity and Unsubscribe - Same Level */}
-            <div className="flex items-center gap-6">
-              {/* Activity Section */}
-              <div className="space-y-3 flex-1">
+            {/* Activity Section */}
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between">
                 <h3 className="text-base font-medium text-foreground">Activity</h3>
+                <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+                  <Bell className="h-3.5 w-3.5" />
+                  Unsubscribe
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                {/* Creation Activity */}
                 {issue.createdAt && (
-                  <div className="flex items-start gap-2 text-base">
+                  <div className="flex items-start gap-2 text-base animate-in fade-in slide-in-from-bottom-2">
                     <Box className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                     <div>
                       <span className="text-foreground">{issue.createdBy || "Lakshya Bagani"}</span>{" "}
@@ -331,41 +494,32 @@ const IssueDetail = () => {
                     </div>
                   </div>
                 )}
-              </div>
-
-              {/* Unsubscribe */}
-              <div>
-                <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-                  <Bell className="h-3.5 w-3.5" />
-                  Unsubscribe
-                </button>
+                
+                {/* Status changes */}
+                {issue.updatedAt && issue.updatedAt !== issue.createdAt && (
+                  <div className="flex items-start gap-2 text-base animate-in fade-in slide-in-from-bottom-2">
+                    <CheckCircle2 className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="text-foreground">{issue.assignee || currentUser}</span>{" "}
+                      <span className="text-muted-foreground">updated the issue</span>
+                      <span className="text-muted-foreground"> · {formatDate(issue.updatedAt)}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Comment Box */}
-            <div className="max-w-2xl relative">
-              <Textarea
-                placeholder="Leave a comment..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="min-h-[100px] text-base resize-none pr-20"
+            {/* Enhanced Comments Section */}
+            <div className="space-y-4">
+              <h3 className="text-base font-medium text-foreground">Comments ({comments.length})</h3>
+              <CommentsSection
+                comments={comments}
+                currentUser={currentUser}
+                onAddComment={handleAddComment}
+                onReply={handleReply}
+                onAddReaction={handleAddReaction}
+                onRemoveReaction={handleRemoveReaction}
               />
-              <div className="absolute right-3 bottom-3 flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface-hover hover:text-foreground p-0">
-                  <Paperclip className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 hover:bg-surface-hover hover:text-foreground p-0"
-                  onClick={() => {
-                    // Handle send
-                    setComment("");
-                  }}
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
           </div>
         </div>

@@ -6,8 +6,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { NewIssueModal, Issue } from "@/components/NewIssueModal";
 import { Avatar } from "@/components/Avatar";
-import { Logo } from "@/components/Logo";
 import { useIssues } from "@/hooks/useJiraIssues";
+import { db } from "@/db/database";
+import { useDatabase } from "@/hooks/useDatabase";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -137,9 +138,26 @@ const MyIssues = () => {
     links: false,
   });
 
-  // Get project key from localStorage or use default
-  const projectKey = localStorage.getItem("jiraProjectKey") || "FLINK";
-  const useApiData = localStorage.getItem("useJiraApi") !== "false"; // Default to true
+  const { isReady } = useDatabase();
+  
+  // Get project key from database or use default
+  const [projectKey, setProjectKey] = useState("FLINK");
+  const [useApiData, setUseApiData] = useState(true);
+  
+  useEffect(() => {
+    if (isReady) {
+      try {
+        const savedProjectKey = db.getSetting("jiraProjectKey");
+        if (savedProjectKey) setProjectKey(savedProjectKey);
+        const savedUseApi = db.getSetting("useJiraApi");
+        setUseApiData(savedUseApi !== "false"); // Default to true
+      } catch (error) {
+        // Fallback to localStorage
+        setProjectKey(localStorage.getItem("jiraProjectKey") || "FLINK");
+        setUseApiData(localStorage.getItem("useJiraApi") !== "false");
+      }
+    }
+  }, [isReady]);
 
   // Fetch issues from JIRA API
   const { data: issues = [], isLoading, isError, error, refetch } = useIssues({
@@ -350,9 +368,6 @@ const MyIssues = () => {
               );
             })}
           </nav>
-
-          {/* Right side - Logo */}
-          <Logo size="sm" className="text-foreground" />
         </div>
       </div>
 

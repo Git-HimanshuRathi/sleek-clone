@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import React from "react";
 import { 
   Inbox, 
   CheckSquare, 
@@ -55,25 +56,24 @@ const FocusIcon = ({ className }: { className?: string }) => (
     {/* Central dot */}
     <circle cx="8" cy="8" r="1.5" fill="currentColor" />
     {/* Top-left L bracket */}
-    <line x1="3" y1="3" x2="3" y2="5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="3" y1="3" x2="5.5" y2="3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="3" y1="3" x2="3" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="3" y1="3" x2="6" y2="3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     {/* Top-right L bracket */}
-    <line x1="13" y1="3" x2="13" y2="5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="13" y1="3" x2="10.5" y2="3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="13" y1="3" x2="13" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="13" y1="3" x2="10" y2="3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     {/* Bottom-left L bracket */}
-    <line x1="3" y1="13" x2="3" y2="10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="3" y1="13" x2="5.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="3" y1="13" x2="3" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="3" y1="13" x2="6" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     {/* Bottom-right L bracket */}
-    <line x1="13" y1="13" x2="13" y2="10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    <line x1="13" y1="13" x2="10.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="13" y1="13" x2="13" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="13" y1="13" x2="10" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 // Solid chevron icons
-const SolidChevronDown = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+const SolidChevronDown = ({ className }: { className?: string }) => (
   <svg
     className={className}
-    style={style}
     width="12"
     height="12"
     viewBox="0 0 12 12"
@@ -84,10 +84,9 @@ const SolidChevronDown = ({ className, style }: { className?: string; style?: Re
   </svg>
 );
 
-const SolidChevronRight = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+const SolidChevronRight = ({ className }: { className?: string }) => (
   <svg
     className={className}
-    style={style}
     width="12"
     height="12"
     viewBox="0 0 12 12"
@@ -118,9 +117,15 @@ const tryNav = [
 
 interface SidebarProps {
   onCommandClick?: () => void;
+  onWidthChange?: (width: number) => void;
+  onToggleRef?: (toggleFn: () => void) => void;
 }
 
-export const Sidebar = ({ onCommandClick }: SidebarProps) => {
+export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem("sidebar-collapsed");
+    return saved === "true";
+  });
   const [workspaceExpanded, setWorkspaceExpanded] = useState(true);
   const [teamsExpanded, setTeamsExpanded] = useState(true);
   const [teamExpanded, setTeamExpanded] = useState(true);
@@ -131,6 +136,33 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
   const [tempVisibleItem, setTempVisibleItem] = useState<"teams" | "members" | null>(null);
   const navigate = useNavigate();
   const { resetOnboarding } = useOnboarding();
+
+  const sidebarWidth = isCollapsed ? 64 : 200;
+
+  const toggleSidebar = useCallback(() => {
+    setIsCollapsed((prev) => {
+      const newCollapsed = !prev;
+      localStorage.setItem("sidebar-collapsed", String(newCollapsed));
+      if (onWidthChange) {
+        onWidthChange(newCollapsed ? 64 : 260);
+      }
+      return newCollapsed;
+    });
+  }, [onWidthChange]);
+
+  // Notify parent of width change on initial mount and when collapsed state changes
+  useEffect(() => {
+    if (onWidthChange) {
+      onWidthChange(sidebarWidth);
+    }
+  }, [sidebarWidth, onWidthChange]);
+
+  // Expose toggle function to parent
+  useEffect(() => {
+    if (onToggleRef) {
+      onToggleRef(toggleSidebar);
+    }
+  }, [onToggleRef, toggleSidebar]);
 
   const handleLogout = () => {
     // Clear localStorage immediately to prevent any redirects
@@ -144,16 +176,23 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
 
   return (
     <>
-      <aside className="w-[260px] bg-[#0B0B0D] flex flex-col h-full fixed left-0 top-0 overflow-y-auto">
+      <aside 
+        className="bg-[#0B0B0D] flex flex-col h-full fixed left-0 top-0 overflow-y-auto transition-all duration-200 ease-in-out"
+        style={{ width: `${sidebarWidth}px` }}
+      >
         {/* User/Workspace selector */}
         <div className="p-2.5 pb-1.5">
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex-1 flex items-center gap-2 px-2 h-8 rounded-md hover:bg-[#1A1C1E]" style={{ transition: "opacity 120ms ease-in-out" }}>
+                <button className={cn("flex items-center gap-2 px-2 h-8 rounded-md hover:bg-[#1A1C1E]", isCollapsed ? "w-full justify-center" : "flex-1")} style={{ transition: "opacity 120ms ease-in-out" }}>
                   <Avatar name="Hacakthon-L" size="xs" />
-                  <span className="text-sm font-medium flex-1 text-left truncate" style={{ fontSize: "14px", fontWeight: 500, color: "#FFFFFF" }}>Hacakthon-L...</span>
-                  <SolidChevronDown className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                  {!isCollapsed && (
+                    <>
+                      <span className="text-sm font-medium flex-1 text-left truncate" style={{ fontSize: "14px", fontWeight: 500, color: "#FFFFFF" }}>Hacakthon-L...</span>
+                      <SolidChevronDown className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                    </>
+                  )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
@@ -192,6 +231,7 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
                 className="h-7 w-7 rounded-md hover:bg-[#1A1C1E] flex items-center justify-center"
                 style={{ transition: "opacity 120ms ease-in-out" }}
                 onClick={onCommandClick}
+                title="Search"
               >
                 <Search className="h-4 w-4" style={{ color: "#B4B5B8" }} />
               </button>
@@ -200,6 +240,7 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
               className="h-7 w-7 rounded-md hover:bg-[#1A1C1E] flex items-center justify-center"
               style={{ transition: "opacity 120ms ease-in-out" }}
               onClick={() => setIsNewIssueModalOpen(true)}
+              title="New issue"
             >
               <PenSquare className="h-4 w-4" style={{ color: "#B4B5B8" }} />
             </button>
@@ -215,42 +256,48 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
               to={item.href}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-2 h-8 rounded-md pl-2",
-                  isActive
-                    ? "bg-[#232527] text-[#FFFFFF]"
-                    : "text-[#9B9CA0] hover:bg-[#1A1C1E]"
+                  "flex items-center h-8 rounded-md",
+                      isActive
+                        ? "bg-[#232527] text-[#FFFFFF]"
+                        : "text-[#E4E5E8] hover:bg-[#1A1C1E]",
+                  isCollapsed ? "justify-center pl-0" : "gap-2 pl-2"
                 )
               }
               style={{ transition: "opacity 120ms ease-in-out" }}
+              title={isCollapsed ? item.name : undefined}
             >
               <item.icon className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-              <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>{item.name}</span>
+              {!isCollapsed && (
+                <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>{item.name}</span>
+              )}
             </NavLink>
           ))}
         </div>
 
-        {/* Workspace */}
-        <div className="mb-3">
-          <button
-            onClick={() => setWorkspaceExpanded(!workspaceExpanded)}
-            className="w-full px-2 py-1 flex items-center gap-1.5 mb-1"
-            style={{ 
-              transition: "opacity 120ms ease-in-out",
-              fontSize: "11px", 
-              fontWeight: 500, 
-              textTransform: "uppercase", 
-              letterSpacing: "0.5px",
-              color: "#6F7074"
-            }}
-          >
-            <span>Workspace</span>
-            {workspaceExpanded ? (
-              <SolidChevronDown className="w-3 h-3" />
-            ) : (
-              <SolidChevronRight className="w-3 h-3" />
+          {/* Workspace */}
+          <div className="mb-2">
+            {!isCollapsed && (
+              <button
+                onClick={() => setWorkspaceExpanded(!workspaceExpanded)}
+                className="w-full px-2 py-1 flex items-center gap-1.5 mb-0.5"
+                style={{ 
+                  transition: "opacity 120ms ease-in-out",
+                  fontSize: "11px", 
+                  fontWeight: 500, 
+                  textTransform: "none", 
+                  letterSpacing: "0.5px",
+                  color: "#B4B5B8"
+                }}
+              >
+                <span>Workspace</span>
+                {workspaceExpanded ? (
+                  <SolidChevronDown className="w-3 h-3" />
+                ) : (
+                  <SolidChevronRight className="w-3 h-3" />
+                )}
+              </button>
             )}
-          </button>
-          {workspaceExpanded && (
+          {(workspaceExpanded || isCollapsed) && (
           <div className="space-y-0">
             {allWorkspaceItems
               .filter((item) => {
@@ -274,29 +321,34 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
                   }}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-2 h-8 rounded-md pl-2",
+                      "flex items-center h-7 rounded-md",
                       isActive
                         ? "bg-[#232527] text-[#FFFFFF]"
-                        : "text-[#9B9CA0] hover:bg-[#1A1C1E]"
+                        : "text-[#E4E5E8] hover:bg-[#1A1C1E]",
+                      isCollapsed ? "justify-center pl-0" : "gap-1.5 pl-1.5"
                     )
                   }
                   style={{ transition: "opacity 120ms ease-in-out" }}
+                  title={isCollapsed ? item.name : undefined}
                 >
-                  <item.icon className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                  <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>{item.name}</span>
+                  <item.icon className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                  {!isCollapsed && (
+                    <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>{item.name}</span>
+                  )}
                 </NavLink>
               ))}
             {/* More dropdown */}
+            {!isCollapsed && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
                     className={cn(
-                      "w-full flex items-center gap-2 h-8 rounded-md text-[#9B9CA0] hover:bg-[#1A1C1E] pl-2"
+                      "w-full flex items-center gap-1.5 h-7 rounded-md text-[#E4E5E8] hover:bg-[#1A1C1E] pl-1.5"
                     )}
                     style={{ transition: "opacity 120ms ease-in-out" }}
                   >
-                    <MoreHorizontal className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                    <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>More</span>
+                    <MoreHorizontal className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                    <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>More</span>
                   </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
@@ -368,163 +420,172 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
           </div>
           )}
         </div>
 
         {/* Your teams */}
-        <div className="mb-3">
-          <button
-            onClick={() => setTeamsExpanded(!teamsExpanded)}
-            className="w-full px-2 py-1 flex items-center gap-1.5 mb-1"
-            style={{ 
-              transition: "opacity 120ms ease-in-out",
-              fontSize: "11px", 
-              fontWeight: 500, 
-              textTransform: "uppercase", 
-              letterSpacing: "0.5px",
-              color: "#6F7074"
-            }}
-          >
-            <span>Your teams</span>
-            {teamsExpanded ? (
-              <SolidChevronDown className="w-3 h-3" />
-            ) : (
-              <SolidChevronRight className="w-3 h-3" />
-            )}
-          </button>
-          {teamsExpanded && (
-            <div className="space-y-0">
-              <button
-                onClick={() => setTeamExpanded(!teamExpanded)}
-                className="w-full flex items-center gap-2 h-8 rounded-md text-[#9B9CA0] hover:bg-[#1A1C1E] pl-2"
-                style={{ transition: "opacity 120ms ease-in-out" }}
-              >
-                <Avatar name="Sst.scaler" size="xs" />
-                <span className="flex-1 text-left text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>Sst.scaler</span>
-                {teamExpanded ? (
-                  <SolidChevronDown className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
-                ) : (
-                  <SolidChevronRight className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
-                )}
-              </button>
-              {teamExpanded && (
-                <div className="ml-6 space-y-0">
-                  <NavLink
-                    to="/team/issues"
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center gap-2 h-8 rounded-md pl-2",
-                        isActive
-                          ? "bg-[#232527] text-[#FFFFFF]"
-                          : "text-[#9B9CA0] hover:bg-[#1A1C1E]"
-                      )
-                    }
-                    style={{ transition: "opacity 120ms ease-in-out" }}
-                  >
-                    <Copy className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                    <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>Issues</span>
-                  </NavLink>
-                  <NavLink
-                    to="/team/projects"
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center gap-2 h-8 rounded-md pl-2",
-                        isActive
-                          ? "bg-[#232527] text-[#FFFFFF]"
-                          : "text-[#9B9CA0] hover:bg-[#1A1C1E]"
-                      )
-                    }
-                    style={{ transition: "opacity 120ms ease-in-out" }}
-                  >
-                    <Box className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                    <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>Projects</span>
-                  </NavLink>
-                  <NavLink
-                    to="/team/views"
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center gap-2 h-8 rounded-md pl-2",
-                        isActive
-                          ? "bg-[#232527] text-[#FFFFFF]"
-                          : "text-[#9B9CA0] hover:bg-[#1A1C1E]"
-                      )
-                    }
-                    style={{ transition: "opacity 120ms ease-in-out" }}
-                  >
-                    <Layers2 className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                    <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>Views</span>
-                  </NavLink>
-                </div>
+        {!isCollapsed && (
+          <div className="mb-2">
+            <button
+              onClick={() => setTeamsExpanded(!teamsExpanded)}
+              className="w-full px-2 py-1 flex items-center gap-1.5 mb-0.5"
+              style={{ 
+                transition: "opacity 120ms ease-in-out",
+                fontSize: "11px", 
+                fontWeight: 500, 
+                textTransform: "none", 
+                letterSpacing: "0.5px",
+                color: "#B4B5B8"
+              }}
+            >
+              <span>Your teams</span>
+              {teamsExpanded ? (
+                <SolidChevronDown className="w-3 h-3" />
+              ) : (
+                <SolidChevronRight className="w-3 h-3" />
               )}
-            </div>
-          )}
-        </div>
-
-        {/* Try */}
-        <div className="mb-3">
-          <button
-            onClick={() => setTryExpanded(!tryExpanded)}
-            className="w-full px-2 py-1 flex items-center gap-1.5 mb-1"
-            style={{ 
-              transition: "opacity 120ms ease-in-out",
-              fontSize: "11px", 
-              fontWeight: 500, 
-              textTransform: "uppercase", 
-              letterSpacing: "0.5px",
-              color: "#6F7074"
-            }}
-          >
-            <span>Try</span>
-            {tryExpanded ? (
-              <SolidChevronDown className="w-3 h-3" />
-            ) : (
-              <SolidChevronRight className="w-3 h-3" />
-            )}
-          </button>
-          {tryExpanded && (
-          <div className="space-y-0">
-            {tryNav.map((item) => {
-              // Special handling for "Invite people" - use button instead of NavLink
-              if (item.name === "Invite people") {
-                return (
-                  <button
-                    key={item.name}
-                    onClick={() => setIsInvitePeopleModalOpen(true)}
-                    className={cn(
-                      "w-full flex items-center gap-2 h-8 rounded-md text-[#9B9CA0] hover:bg-[#1A1C1E] pl-2"
-                    )}
-                    style={{ transition: "opacity 120ms ease-in-out" }}
-                  >
-                    <item.icon className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                    <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>{item.name}</span>
-                  </button>
-                );
-              }
-              
-              // Regular NavLink for other items
-              return (
-                <NavLink
-                  key={item.name}
-                  to={item.href}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-2 h-8 rounded-md pl-2",
-                      isActive
-                        ? "bg-[#232527] text-[#FFFFFF]"
-                        : "text-[#9B9CA0] hover:bg-[#1A1C1E]"
-                    )
-                  }
+            </button>
+            {teamsExpanded && (
+              <div className="space-y-0">
+                <button
+                  onClick={() => setTeamExpanded(!teamExpanded)}
+                  className={cn("w-full flex items-center h-7 rounded-md text-[#E4E5E8] hover:bg-[#1A1C1E]", isCollapsed ? "justify-center pl-0" : "gap-1.5 pl-1.5")}
                   style={{ transition: "opacity 120ms ease-in-out" }}
                 >
-                  <item.icon className="w-4 h-4" style={{ color: "#B4B5B8" }} />
-                  <span className="text-sm font-medium" style={{ fontSize: "14px", fontWeight: 500 }}>{item.name}</span>
-                </NavLink>
-              );
-            })}
+                  <Avatar name="Sst.scaler" size="xs" />
+                  {!isCollapsed && (
+                    <>
+                      <span className="flex-1 text-left text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>Sst.scaler</span>
+                      {teamExpanded ? (
+                        <SolidChevronDown className="w-3 h-3" style={{ color: "#B4B5B8" }} />
+                      ) : (
+                        <SolidChevronRight className="w-3 h-3" style={{ color: "#B4B5B8" }} />
+                      )}
+                    </>
+                  )}
+                </button>
+                {teamExpanded && !isCollapsed && (
+                  <div className="ml-5 space-y-0">
+                    <NavLink
+                      to="/team/issues"
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
+                      isActive
+                        ? "bg-[#232527] text-[#FFFFFF]"
+                        : "text-[#E4E5E8] hover:bg-[#1A1C1E]"
+                        )
+                      }
+                      style={{ transition: "opacity 120ms ease-in-out" }}
+                    >
+                      <Copy className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                      <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>Issues</span>
+                    </NavLink>
+                    <NavLink
+                      to="/team/projects"
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
+                      isActive
+                        ? "bg-[#232527] text-[#FFFFFF]"
+                        : "text-[#E4E5E8] hover:bg-[#1A1C1E]"
+                        )
+                      }
+                      style={{ transition: "opacity 120ms ease-in-out" }}
+                    >
+                      <Box className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                      <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>Projects</span>
+                    </NavLink>
+                    <NavLink
+                      to="/team/views"
+                      className={({ isActive }) =>
+                        cn(
+                          "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
+                      isActive
+                        ? "bg-[#232527] text-[#FFFFFF]"
+                        : "text-[#E4E5E8] hover:bg-[#1A1C1E]"
+                        )
+                      }
+                      style={{ transition: "opacity 120ms ease-in-out" }}
+                    >
+                      <Layers2 className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                      <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>Views</span>
+                    </NavLink>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          )}
-        </div>
+        )}
+
+        {/* Try */}
+        {!isCollapsed && (
+          <div className="mb-2">
+            <button
+              onClick={() => setTryExpanded(!tryExpanded)}
+              className="w-full px-2 py-1 flex items-center gap-1.5 mb-0.5"
+              style={{ 
+                transition: "opacity 120ms ease-in-out",
+                fontSize: "11px", 
+                fontWeight: 500, 
+                textTransform: "none", 
+                letterSpacing: "0.5px",
+                color: "#B4B5B8"
+              }}
+            >
+              <span>Try</span>
+              {tryExpanded ? (
+                <SolidChevronDown className="w-3 h-3" />
+              ) : (
+                <SolidChevronRight className="w-3 h-3" />
+              )}
+            </button>
+            {tryExpanded && (
+            <div className="space-y-0">
+              {tryNav.map((item) => {
+                // Special handling for "Invite people" - use button instead of NavLink
+                if (item.name === "Invite people") {
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => setIsInvitePeopleModalOpen(true)}
+                      className={cn(
+                        "w-full flex items-center gap-1.5 h-7 rounded-md text-[#E4E5E8] hover:bg-[#1A1C1E] pl-1.5"
+                      )}
+                      style={{ transition: "opacity 120ms ease-in-out" }}
+                    >
+                      <item.icon className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                      <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>{item.name}</span>
+                    </button>
+                  );
+                }
+                
+                // Regular NavLink for other items
+                return (
+                  <NavLink
+                    key={item.name}
+                    to={item.href}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
+                      isActive
+                        ? "bg-[#232527] text-[#FFFFFF]"
+                        : "text-[#E4E5E8] hover:bg-[#1A1C1E]"
+                      )
+                    }
+                    style={{ transition: "opacity 120ms ease-in-out" }}
+                  >
+                    <item.icon className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                    <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>{item.name}</span>
+                  </NavLink>
+                );
+              })}
+            </div>
+            )}
+          </div>
+        )}
       </nav>
     </aside>
 

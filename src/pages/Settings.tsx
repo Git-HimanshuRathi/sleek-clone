@@ -60,6 +60,7 @@ import {
   Clock,
   Link as LinkIcon,
   Copy,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,7 +74,16 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import CustomizeSidebarModal from "@/components/CustomizeSidebarModal";
+import { CyclesModal } from "@/components/CyclesModal";
 import { Avatar } from "@/components/Avatar";
+import { db } from "@/db/database";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Custom icons for settings
 const NotificationRefreshIcon = ({ className }: { className?: string }) => (
@@ -361,39 +371,76 @@ const Settings = () => {
   const [activeSection, setActiveSection] = useState<SettingsSection>("preferences");
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [isCustomizeSidebarModalOpen, setIsCustomizeSidebarModalOpen] = useState(false);
+  const [cyclesModalOpen, setCyclesModalOpen] = useState(false);
   
-  // JIRA API settings
-  const [jiraProjectKey, setJiraProjectKey] = useState(() => 
-    localStorage.getItem("jiraProjectKey") || "FLINK"
-  );
-  const [useJiraApi, setUseJiraApi] = useState(() => 
-    localStorage.getItem("useJiraApi") !== "false"
-  );
-  const [jiraProxyUrl, setJiraProxyUrl] = useState(() => 
-    localStorage.getItem("jiraProxyUrl") || ""
-  );
-  const [fetchStats, setFetchStats] = useState(() => 
-    localStorage.getItem("jiraFetchStats") !== "false" // Default to true
-  );
+  // JIRA API settings - load from database
+  const [jiraProjectKey, setJiraProjectKey] = useState(() => {
+    try {
+      return db.getSetting("jiraProjectKey") || localStorage.getItem("jiraProjectKey") || "FLINK";
+    } catch {
+      return localStorage.getItem("jiraProjectKey") || "FLINK";
+    }
+  });
+  const [useJiraApi, setUseJiraApi] = useState(() => {
+    try {
+      const saved = db.getSetting("useJiraApi");
+      return saved !== null ? saved !== "false" : (localStorage.getItem("useJiraApi") !== "false");
+    } catch {
+      return localStorage.getItem("useJiraApi") !== "false";
+    }
+  });
+  const [jiraProxyUrl, setJiraProxyUrl] = useState(() => {
+    try {
+      return db.getSetting("jiraProxyUrl") || localStorage.getItem("jiraProxyUrl") || "";
+    } catch {
+      return localStorage.getItem("jiraProxyUrl") || "";
+    }
+  });
+  const [fetchStats, setFetchStats] = useState(() => {
+    try {
+      const saved = db.getSetting("jiraFetchStats");
+      return saved !== null ? saved !== "false" : (localStorage.getItem("jiraFetchStats") !== "false");
+    } catch {
+      return localStorage.getItem("jiraFetchStats") !== "false";
+    }
+  });
 
   useEffect(() => {
-    localStorage.setItem("jiraProjectKey", jiraProjectKey);
+    try {
+      db.setSetting("jiraProjectKey", jiraProjectKey);
+    } catch (error) {
+      localStorage.setItem("jiraProjectKey", jiraProjectKey);
+    }
   }, [jiraProjectKey]);
 
   useEffect(() => {
-    localStorage.setItem("useJiraApi", String(useJiraApi));
+    try {
+      db.setSetting("useJiraApi", String(useJiraApi));
+    } catch (error) {
+      localStorage.setItem("useJiraApi", String(useJiraApi));
+    }
   }, [useJiraApi]);
 
   useEffect(() => {
-    if (jiraProxyUrl) {
-      localStorage.setItem("jiraProxyUrl", jiraProxyUrl);
-    } else {
-      localStorage.removeItem("jiraProxyUrl");
+    try {
+      if (jiraProxyUrl) {
+        db.setSetting("jiraProxyUrl", jiraProxyUrl);
+      }
+    } catch (error) {
+      if (jiraProxyUrl) {
+        localStorage.setItem("jiraProxyUrl", jiraProxyUrl);
+      } else {
+        localStorage.removeItem("jiraProxyUrl");
+      }
     }
   }, [jiraProxyUrl]);
 
   useEffect(() => {
-    localStorage.setItem("jiraFetchStats", String(fetchStats));
+    try {
+      db.setSetting("jiraFetchStats", String(fetchStats));
+    } catch (error) {
+      localStorage.setItem("jiraFetchStats", String(fetchStats));
+    }
   }, [fetchStats]);
   
   // Parse section from URL if present
@@ -2117,7 +2164,8 @@ const Settings = () => {
     };
 
     const teams = getTeams();
-    const activeTeamsCount = teams.length;
+    const activeTeams = teams.filter((t: any) => !t.archived);
+    const activeTeamsCount = activeTeams.length;
 
     return (
       <div className="space-y-6">
@@ -2167,15 +2215,22 @@ const Settings = () => {
                 <div className="text-xs text-muted-foreground mb-2">Active {activeTeamsCount}</div>
               </div>
             )}
-            {teams.length > 0 ? (
-              teams.map((team: any) => (
+            {(activeTeams.length > 0 || teams.filter((t: any) => t.archived).length > 0) ? (
+              [...activeTeams, ...teams.filter((t: any) => t.archived)].map((team: any) => {
+                const isArchived = team.archived === true;
+                return (
                 <div 
                   key={team.id}
-                  className="flex items-center justify-between py-3 hover:bg-[#1a1b1e] transition-colors cursor-pointer"
+                  className={cn(
+                    "flex items-center justify-between py-3 hover:bg-[#1a1b1e] transition-colors",
+                    isArchived && "opacity-50"
+                  )}
                   style={{ paddingLeft: '16px', paddingRight: '16px' }}
-                  onClick={() => setSelectedTeam(team.id)}
                 >
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div 
+                    className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
+                    onClick={() => !isArchived && setSelectedTeam(team.id)}
+                  >
                     <div 
                       className="w-6 h-6 rounded bg-[#17181B] border border-[#2d3036] flex items-center justify-center flex-shrink-0"
                     >
@@ -2187,6 +2242,7 @@ const Settings = () => {
                     <div className="min-w-0">
                       <span className="text-sm text-foreground">{team.name}</span>
                       <span className="text-xs text-muted-foreground ml-2">{team.identifier}</span>
+                      {isArchived && <span className="text-xs text-muted-foreground ml-2">(Archived)</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-8 flex-shrink-0">
@@ -2194,9 +2250,49 @@ const Settings = () => {
                     <div className="text-sm text-muted-foreground w-[80px] text-right">{team.members || 1}</div>
                     <div className="text-sm text-muted-foreground w-[80px] text-right">{team.issues || "-"}</div>
                     <div className="text-sm text-muted-foreground w-[80px] text-right">{team.createdDate || new Date(team.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-[#1a1b1e]">
+                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          const newName = prompt("Enter new team name:", team.name);
+                          if (newName && newName.trim() && newName !== team.name) {
+                            const updatedTeams = teams.map((t: any) =>
+                              t.id === team.id ? { ...t, name: newName.trim() } : t
+                            );
+                            localStorage.setItem("teams", JSON.stringify(updatedTeams));
+                            window.dispatchEvent(new Event("teamsUpdated"));
+                          }
+                        }}>
+                          Rename team
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const confirmAction = isArchived ? "unarchive" : "archive";
+                            if (confirm(`Are you sure you want to ${confirmAction} this team?`)) {
+                              const updatedTeams = teams.map((t: any) =>
+                                t.id === team.id ? { ...t, archived: !isArchived } : t
+                              );
+                              localStorage.setItem("teams", JSON.stringify(updatedTeams));
+                              window.dispatchEvent(new Event("teamsUpdated"));
+                            }
+                          }}
+                          className={isArchived ? "text-green-500" : "text-red-500"}
+                        >
+                          {isArchived ? "Unarchive team" : "Archive team"}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
-              ))
+              )}
+            )
             ) : (
               <div style={{ paddingLeft: '16px', paddingRight: '16px' }} className="py-8 text-center">
                 <div className="text-sm text-muted-foreground">No teams found</div>
@@ -2874,7 +2970,10 @@ const Settings = () => {
           </div>
           
           {/* Cycles */}
-          <div className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[#1a1b1e] transition-colors">
+          <div 
+            className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-[#1a1b1e] transition-colors"
+            onClick={() => setCyclesModalOpen(true)}
+          >
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-foreground" />
               <div>
@@ -2883,7 +2982,19 @@ const Settings = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Off</span>
+              <span className="text-xs text-muted-foreground">
+                {(() => {
+                  const stored = localStorage.getItem("cycles");
+                  const cycles = stored ? JSON.parse(stored) : [];
+                  const activeCycles = cycles.filter((c: any) => {
+                    const now = new Date();
+                    const start = new Date(c.startDate);
+                    const end = new Date(c.endDate);
+                    return now >= start && now <= end;
+                  });
+                  return activeCycles.length > 0 ? `${activeCycles.length} active` : "Off";
+                })()}
+              </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
@@ -3204,6 +3315,11 @@ const Settings = () => {
         </div>
       </main>
 
+      <CyclesModal 
+        open={cyclesModalOpen} 
+        onOpenChange={setCyclesModalOpen}
+        teamId={selectedTeam || undefined}
+      />
       <CustomizeSidebarModal
         open={isCustomizeSidebarModalOpen}
         onOpenChange={setIsCustomizeSidebarModalOpen}
