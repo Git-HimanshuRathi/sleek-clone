@@ -19,6 +19,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import TeamsPage from "./pages/TeamsPage";
 import Members from "./pages/Members";
+import Settings from "./pages/Settings";
 import TeamIssues from "./pages/TeamIssues";
 import Welcome from "./pages/onboarding/Welcome";
 import ThemeSelection from "./pages/onboarding/ThemeSelection";
@@ -50,6 +51,9 @@ const AppRoutes = () => {
       
       {/* Auth Routes */}
       <Route path="/login" element={<Login />} />
+      
+      {/* Settings Route - Full page, outside main layout */}
+      <Route path="/settings" element={<Settings />} />
       
       {/* Onboarding Routes */}
       <Route path="/onboarding/welcome" element={<Welcome />} />
