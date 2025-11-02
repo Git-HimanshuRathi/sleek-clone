@@ -126,24 +126,34 @@ const Projects = () => {
   });
 
   // Ensure all projects have required fields with defaults
-  const projects = projectsData.map((project: Project) => ({
-    ...project,
-    color: project.color || "#5E6AD2",
-    icon: project.icon || "📁",
-    health: project.health || "No updates",
-  }));
+  const projects = projectsData.map((project: any) => {
+    // Convert numeric priority to string if needed
+    let priority = project.priority;
+    if (typeof priority === "number") {
+      const priorityMap: Record<number, string> = {
+        0: "No priority",
+        1: "Urgent",
+        2: "High",
+        3: "Medium",
+        4: "Low",
+      };
+      priority = priorityMap[priority] || "No priority";
+    }
+
+    return {
+      ...project,
+      priority: priority || "No priority",
+      color: project.color || "#5E6AD2",
+      icon: project.icon || "📁",
+      health: project.health || "No updates",
+    };
+  });
 
   const loadProjects = () => {
     refetch();
   };
 
-  // Sync projects to state when API data changes
-  useEffect(() => {
-    if (projectsData.length > 0 && useApiData) {
-      // Save merged projects to localStorage for local edits
-      localStorage.setItem("projects", JSON.stringify(projectsData));
-    }
-  }, [projectsData, useApiData]);
+  // Note: Projects are now automatically stored in localStorage by the useProjects hook
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return null;
@@ -217,24 +227,24 @@ const Projects = () => {
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Top Navigation Bar with Tabs */}
-      <div className="border-b border-border px-6 py-2.5">
+      <div className="border-b border-border px-5 py-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <nav className="flex items-center gap-1">
               {/* Projects - Just text, not clickable, more prominent */}
-              <span className="text-base font-semibold text-foreground">Projects</span>
+              <span className="text-sm font-semibold text-foreground">Projects</span>
               
               {/* All projects - Button, no navigation */}
               <button
                 onClick={() => setActiveView("all")}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                  "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors",
                   activeView === "all"
                     ? "bg-surface text-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-surface/30"
                 )}
               >
-                <Box className="w-4 h-4" />
+                <Box className="w-3.5 h-3.5" />
                 All projects
               </button>
               
@@ -242,38 +252,38 @@ const Projects = () => {
               <button
                 onClick={() => setActiveView("new-view")}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                  "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors",
                   activeView === "new-view"
                     ? "bg-surface text-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-surface/30"
                 )}
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5" />
                 New view
               </button>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
-              <Link2 className="h-4 w-4" />
+              <Link2 className="h-3.5 w-3.5" />
             </Button>
             <Button 
               variant="ghost" 
-              className="h-7 px-3 text-sm text-foreground hover:text-foreground hover:bg-surface/30"
+              className="h-7 px-2.5 text-xs text-foreground hover:text-foreground hover:bg-surface/30"
               onClick={() => setIsNewProjectModalOpen(true)}
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               Add project
             </Button>
             <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
-              <LayoutGrid className="h-4 w-4" />
+              <LayoutGrid className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </div>
 
       {/* Filter and Display Bar */}
-      <div className="border-b border-border flex items-center justify-between px-6 py-2.5">
+      <div className="border-b border-border flex items-center justify-between px-5 py-2">
         <Button
           variant="ghost"
           size="sm"
@@ -322,7 +332,7 @@ const Projects = () => {
       {!isLoading && !isError && (
         <div className="flex-1 overflow-y-auto">
           {projects.length > 0 ? (
-          <div className="px-6 py-4">
+          <div className="px-5 py-3">
             <table className="w-full border-collapse table-fixed">
               <colgroup>
                 <col style={{ width: "auto" }} />
@@ -334,12 +344,12 @@ const Projects = () => {
               </colgroup>
               <thead>
                 <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-base font-medium text-foreground">Name</th>
-                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Health</th>
-                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Priority</th>
-                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Lead</th>
-                  <th className="text-right py-3 px-0 text-base font-medium text-foreground whitespace-nowrap">Target date</th>
-                  <th className="text-right py-3 pl-0 pr-0.5 text-base font-medium text-foreground whitespace-nowrap">Status</th>
+                  <th className="text-left py-2.5 px-4 text-xs font-medium text-foreground">Name</th>
+                  <th className="text-right py-2.5 px-0 text-xs font-medium text-foreground whitespace-nowrap">Health</th>
+                  <th className="text-right py-2.5 px-0 text-xs font-medium text-foreground whitespace-nowrap">Priority</th>
+                  <th className="text-right py-2.5 px-0 text-xs font-medium text-foreground whitespace-nowrap">Lead</th>
+                  <th className="text-right py-2.5 px-0 text-xs font-medium text-foreground whitespace-nowrap">Target date</th>
+                  <th className="text-right py-2.5 pl-0 pr-1 text-xs font-medium text-foreground whitespace-nowrap">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -353,17 +363,17 @@ const Projects = () => {
                       className="hover:bg-surface/50 transition-colors"
                     >
                       {/* Name - Takes most space, no icon */}
-                      <td className="py-3 px-4">
+                      <td className="py-2.5 px-4">
                         <button
                           onClick={() => navigate(`/projects/${project.id}`)}
-                          className="text-sm text-foreground hover:text-foreground hover:underline cursor-pointer text-left"
+                          className="text-xs text-foreground hover:text-foreground hover:underline cursor-pointer text-left"
                         >
                           {project.name}
                         </button>
                       </td>
                       
                       {/* Health - Compact */}
-                      <td className="py-3 px-0">
+                      <td className="py-2.5 px-0">
                         <div className="flex items-center justify-end gap-0.5">
                           <DashedCircle className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                           <span className="text-[11px] text-muted-foreground whitespace-nowrap">
@@ -373,7 +383,7 @@ const Projects = () => {
                       </td>
                       
                       {/* Priority - Compact with dropdown */}
-                      <td className="py-3 px-0">
+                      <td className="py-2.5 px-0">
                         <div className="flex justify-end">
                           <DropdownMenu 
                             open={openPriorityDropdown === project.id} 
@@ -436,7 +446,7 @@ const Projects = () => {
                       </td>
                       
                       {/* Lead - Compact */}
-                      <td className="py-3 px-0">
+                      <td className="py-2.5 px-0">
                         <div className="flex items-center justify-end gap-0.5">
                           {project.lead && typeof project.lead === "string" ? (
                             <>
@@ -455,7 +465,7 @@ const Projects = () => {
                       </td>
                       
                       {/* Target date - Compact with date picker */}
-                      <td className="py-3 px-0">
+                      <td className="py-2.5 px-0">
                         <div className="flex justify-end">
                           <Popover 
                             open={openDatePicker === project.id} 
@@ -483,7 +493,7 @@ const Projects = () => {
                       </td>
                       
                       {/* Status - Compact with dropdown */}
-                      <td className="py-3 pl-0 pr-0.5">
+                      <td className="py-2.5 pl-0 pr-1">
                         <div className="flex justify-end">
                           <DropdownMenu 
                             open={openStatusDropdown === project.id} 

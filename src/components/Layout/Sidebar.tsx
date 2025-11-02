@@ -9,8 +9,6 @@ import {
   ChevronDown,
   ChevronRight,
   Users,
-  HelpCircle,
-  CreditCard,
   FileUp,
   UserPlus,
   Github,
@@ -140,7 +138,7 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
 
   return (
     <>
-      <aside className="w-60 border-r border-border bg-[#090909] flex flex-col text-[13px]">
+      <aside className="w-60 bg-[#090909] flex flex-col text-[13px]">
         {/* User/Workspace selector */}
         <div className="p-2.5 pb-1.5">
           <div className="flex items-center gap-2">
@@ -454,17 +452,6 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
           )}
         </div>
       </nav>
-
-      {/* Bottom section */}
-      <div className="p-2 border-t border-border flex items-center gap-2">
-        <button className="p-1.5 rounded-md hover:bg-surface transition-colors">
-          <HelpCircle className="w-4 h-4 text-muted-foreground" />
-        </button>
-        <button className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-surface transition-colors flex-1">
-          <CreditCard className="w-4 h-4 text-muted-foreground" />
-          <span className="text-muted-foreground text-xs">Free plan</span>
-        </button>
-      </div>
     </aside>
 
     <NewIssueModal

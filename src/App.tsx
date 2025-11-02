@@ -10,6 +10,7 @@ import Inbox from "./pages/Inbox";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
+import IssueDetail from "./pages/IssueDetail";
 import Views from "./pages/Views";
 import More from "./pages/More";
 import ImportIssues from "./pages/ImportIssues";
@@ -79,6 +80,7 @@ const AppRoutes = () => {
         <Route path="/inbox" element={<Inbox />} />
         <Route path="/my-issues" element={<MyIssues />} />
         <Route path="/my-issues/:tab" element={<MyIssues />} />
+        <Route path="/my-issues/issue/:issueId" element={<IssueDetail />} />
         <Route path="/projects" element={<Projects />} />
         <Route path="/projects/:projectId" element={<ProjectDetail />} />
         <Route path="/views" element={<Views />} />

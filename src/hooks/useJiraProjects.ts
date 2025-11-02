@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { fetchJiraProjects } from "@/services/jiraApi";
 import { Project } from "@/data/mockData";
 
@@ -25,24 +26,41 @@ export const useJiraProjects = (options: UseJiraProjectsOptions = {}) => {
 
 /**
  * Hook to get projects from JIRA and merge with localStorage projects
+ * Checks localStorage first - if data exists, uses it. Only makes API call if localStorage is empty.
  */
 export const useProjects = (options: UseJiraProjectsOptions = {}) => {
-  const jiraQuery = useJiraProjects(options);
-  
-  // Get local projects from localStorage
+  // Get local projects from localStorage first
   const getLocalProjects = (): Project[] => {
     try {
       const stored = localStorage.getItem("projects");
       if (!stored) return [];
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
     }
   };
 
-  // If API is disabled or not enabled, return only local projects
-  if (!options.enabled) {
-    const localProjects = getLocalProjects();
+  const localProjects = getLocalProjects();
+  const hasLocalData = localProjects.length > 0;
+
+  // Only enable API call if localStorage is empty and API is enabled
+  const shouldFetch = options.enabled && !hasLocalData;
+  
+  const jiraQuery = useJiraProjects({
+    ...options,
+    enabled: shouldFetch,
+  });
+
+  // Store API data in localStorage when it arrives (only if localStorage was empty)
+  useEffect(() => {
+    if (jiraQuery.data && jiraQuery.data.length > 0 && !hasLocalData && options.enabled) {
+      localStorage.setItem("projects", JSON.stringify(jiraQuery.data));
+    }
+  }, [jiraQuery.data, hasLocalData, options.enabled]);
+
+  // If API is disabled or we have local data, return only local projects
+  if (!options.enabled || hasLocalData) {
     return {
       ...jiraQuery,
       data: localProjects,
@@ -55,7 +73,6 @@ export const useProjects = (options: UseJiraProjectsOptions = {}) => {
   }
 
   // Merge JIRA projects with local projects (avoid duplicates by ID)
-  const localProjects = getLocalProjects();
   const jiraProjects = jiraQuery.data || [];
   
   // Create a map of JIRA project IDs to avoid duplicates
@@ -68,7 +85,7 @@ export const useProjects = (options: UseJiraProjectsOptions = {}) => {
 
   return {
     ...jiraQuery,
-    data: mergedProjects,
+    data: mergedProjects.length > 0 ? mergedProjects : localProjects,
     localProjects,
     jiraProjects,
   };
