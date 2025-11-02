@@ -24,7 +24,7 @@ export const Avatar = ({ name, size = "md", className }: AvatarProps) => {
   return (
     <div
       className={cn(
-        "rounded-full bg-primary/20 text-primary flex items-center justify-center font-semibold",
+        "rounded bg-primary/20 text-primary flex items-center justify-center font-semibold",
         sizeClasses[size],
         className
       )}
