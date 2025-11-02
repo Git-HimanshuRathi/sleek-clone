@@ -90,7 +90,7 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/settings")}>
                   <span>Settings</span>
                   <DropdownMenuShortcut>G then S</DropdownMenuShortcut>
                 </DropdownMenuItem>
@@ -214,13 +214,14 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
                   <span>More</span>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
+              <DropdownMenuContent align="start" className="w-44 !bg-[#1c1d1f] !border-[#383b42] p-0.5">
                 {tempVisibleItem !== "members" && (
                   <DropdownMenuItem
                     onClick={() => {
                       setTempVisibleItem("members");
                       navigate("/members");
                     }}
+                    className="py-1 hover:!bg-[#292b30] focus:!bg-[#292b30]"
                   >
                     <Users className="w-4 h-4 mr-2" />
                     <span>Members</span>
@@ -232,12 +233,14 @@ export const Sidebar = ({ onCommandClick }: SidebarProps) => {
                       setTempVisibleItem("teams");
                       navigate("/teams");
                     }}
+                    className="py-1 hover:!bg-[#292b30] focus:!bg-[#292b30]"
                   >
                     <UserSquare className="w-4 h-4 mr-2" />
                     <span>Teams</span>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => setIsCustomizeSidebarModalOpen(true)}>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setIsCustomizeSidebarModalOpen(true)} className="py-1 hover:!bg-[#292b30] focus:!bg-[#292b30]">
                   <Pencil className="w-4 h-4 mr-2" />
                   <span>Customize sidebar</span>
                 </DropdownMenuItem>
