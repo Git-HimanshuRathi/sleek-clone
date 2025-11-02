@@ -22,6 +22,7 @@ import Login from "./pages/Login";
 import TeamsPage from "./pages/TeamsPage";
 import Members from "./pages/Members";
 import Settings from "./pages/Settings";
+import CreateTeam from "./pages/CreateTeam";
 import TeamIssues from "./pages/TeamIssues";
 import Welcome from "./pages/onboarding/Welcome";
 import ThemeSelection from "./pages/onboarding/ThemeSelection";
@@ -63,6 +64,7 @@ const AppRoutes = () => {
       
       {/* Settings Route - Full page, outside main layout */}
       <Route path="/settings" element={<Settings />} />
+      <Route path="/create-team" element={<CreateTeam />} />
       
       {/* Onboarding Routes */}
       <Route path="/onboarding/welcome" element={<Welcome />} />

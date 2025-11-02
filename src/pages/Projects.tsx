@@ -45,8 +45,8 @@ const FilterIcon = ({ className }: { className?: string }) => (
 );
 
 // List icon - three horizontal lines
-const ListIcon = ({ className }: { className?: string }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const ListIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <line x1="3" y1="5" x2="13" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <line x1="3" y1="8" x2="13" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <line x1="3" y1="11" x2="13" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -54,8 +54,8 @@ const ListIcon = ({ className }: { className?: string }) => (
 );
 
 // Board icon - 2x2 grid of squares
-const BoardIcon = ({ className }: { className?: string }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const BoardIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="5" height="5" stroke="currentColor" strokeWidth="1.5" fill="none" rx="0.5" />
     <rect x="9" y="2" width="5" height="5" stroke="currentColor" strokeWidth="1.5" fill="none" rx="0.5" />
     <rect x="2" y="9" width="5" height="5" stroke="currentColor" strokeWidth="1.5" fill="none" rx="0.5" />
@@ -64,8 +64,8 @@ const BoardIcon = ({ className }: { className?: string }) => (
 );
 
 // Timeline icon - two vertical lines with horizontal line and dots
-const TimelineIcon = ({ className }: { className?: string }) => (
-  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const TimelineIcon = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg className={className} style={style} width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
     <line x1="4" y1="3" x2="4" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <line x1="12" y1="3" x2="12" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <line x1="4" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

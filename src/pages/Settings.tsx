@@ -398,11 +398,13 @@ const Settings = () => {
   
   // Parse section from URL if present
   useEffect(() => {
-    const section = location.pathname.split("/settings/")[1];
+    const sectionFromPath = location.pathname.split("/settings/")[1];
+    const sectionFromQuery = new URLSearchParams(location.search).get("section");
+    const section = sectionFromPath || sectionFromQuery;
     if (section && settingsItems.some(item => item.id === section)) {
       setActiveSection(section as SettingsSection);
     }
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   const groupedItems = settingsItems.reduce((acc, item) => {
     if (item.section) {
@@ -2101,69 +2103,110 @@ const Settings = () => {
     </div>
   );
 
-  const renderTeamsContent = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <div className="relative w-[280px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Filter by name..."
-              className="w-full bg-[#17181B] border-[#2d3036] text-foreground pl-9"
-            />
-          </div>
-          <Select defaultValue="active">
-            <SelectTrigger className="w-[140px] bg-[#17181B] border-[#2d3036] text-foreground">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <Button className="bg-[#5E6AD2] hover:bg-[#6B77E0] text-white">
-          Create team
-        </Button>
-      </div>
+  const renderTeamsContent = () => {
+    // Get teams from localStorage
+    const getTeams = () => {
+      try {
+        const stored = localStorage.getItem("teams");
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    };
 
-      {/* Table */}
-      <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-        {/* Table Header */}
-        <div className="flex items-center px-5 py-3 border-b border-[#2d3036]">
-          <div className="w-[200px] text-xs font-medium text-muted-foreground">Name ↓</div>
-          <div className="flex-1 text-xs font-medium text-muted-foreground">Visibility</div>
-          <div className="w-[100px] text-xs font-medium text-muted-foreground">Members</div>
-          <div className="w-[100px] text-xs font-medium text-muted-foreground">Issues</div>
-          <div className="w-[100px] text-xs font-medium text-muted-foreground">Created</div>
-        </div>
+    const teams = getTeams();
+    const activeTeamsCount = teams.length;
 
-        {/* Table Content */}
-        <div className="divide-y divide-[#25272E]">
-          <div className="px-5 py-2">
-            <div className="text-xs text-muted-foreground mb-2">Active 1</div>
-          </div>
-          <div 
-            className="flex items-center px-5 py-3 hover:bg-[#1a1b1e] transition-colors cursor-pointer"
-            onClick={() => setSelectedTeam("hacakthon-linearclone")}
-          >
-            <div className="w-[200px] flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-green-500 flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <span className="text-sm text-foreground">Hacakthon-LinearClone</span>
-                <span className="text-xs text-muted-foreground ml-2">HAC</span>
-              </div>
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="relative w-[280px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Filter by name..."
+                className="w-full bg-[#17181B] border-[#2d3036] text-foreground pl-9"
+              />
             </div>
-            <div className="flex-1 text-sm text-muted-foreground">Workspace</div>
-            <div className="w-[100px] text-sm text-muted-foreground">1</div>
-            <div className="w-[100px] text-sm text-muted-foreground">-</div>
-            <div className="w-[100px] text-sm text-muted-foreground">Nov 1</div>
+            <Select defaultValue="active">
+              <SelectTrigger className="w-[140px] bg-[#17181B] border-[#2d3036] text-foreground">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button 
+            className="bg-[#5E6AD2] hover:bg-[#6B77E0] text-white"
+            onClick={() => navigate("/create-team")}
+          >
+            Create team
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
+          {/* Table Header */}
+          <div className="flex items-center justify-between py-3 border-b border-[#2d3036]" style={{ paddingLeft: '16px', paddingRight: '16px' }}>
+            <div className="text-xs font-medium text-muted-foreground">Name ↓</div>
+            <div className="flex items-center gap-8">
+              <div className="text-xs font-medium text-muted-foreground w-[100px] text-right">Visibility</div>
+              <div className="text-xs font-medium text-muted-foreground w-[80px] text-right">Members</div>
+              <div className="text-xs font-medium text-muted-foreground w-[80px] text-right">Issues</div>
+              <div className="text-xs font-medium text-muted-foreground w-[80px] text-right">Created</div>
+            </div>
+          </div>
+
+          {/* Table Content */}
+          <div className="divide-y divide-[#25272E]">
+            {activeTeamsCount > 0 && (
+              <div style={{ paddingLeft: '16px', paddingRight: '16px' }} className="py-2">
+                <div className="text-xs text-muted-foreground mb-2">Active {activeTeamsCount}</div>
+              </div>
+            )}
+            {teams.length > 0 ? (
+              teams.map((team: any) => (
+                <div 
+                  key={team.id}
+                  className="flex items-center justify-between py-3 hover:bg-[#1a1b1e] transition-colors cursor-pointer"
+                  style={{ paddingLeft: '16px', paddingRight: '16px' }}
+                  onClick={() => setSelectedTeam(team.id)}
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div 
+                      className="w-6 h-6 rounded bg-[#17181B] border border-[#2d3036] flex items-center justify-center flex-shrink-0"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="8" r="4" fill={team.iconColor || "#6F7074"} />
+                        <path d="M6 21c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke={team.iconColor || "#6F7074"} strokeWidth="2" strokeLinecap="round" fill="none" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-sm text-foreground">{team.name}</span>
+                      <span className="text-xs text-muted-foreground ml-2">{team.identifier}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-8 flex-shrink-0">
+                    <div className="text-sm text-muted-foreground w-[100px] text-right">{team.visibility || "Workspace"}</div>
+                    <div className="text-sm text-muted-foreground w-[80px] text-right">{team.members || 1}</div>
+                    <div className="text-sm text-muted-foreground w-[80px] text-right">{team.issues || "-"}</div>
+                    <div className="text-sm text-muted-foreground w-[80px] text-right">{team.createdDate || new Date(team.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ paddingLeft: '16px', paddingRight: '16px' }} className="py-8 text-center">
+                <div className="text-sm text-muted-foreground">No teams found</div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderMembersContent = () => (
     <div className="space-y-6">
@@ -3100,7 +3143,7 @@ const Settings = () => {
               {renderWorkspaceContent()}
             </div>
           ) : activeSection === "admin-teams" ? (
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-full mx-auto px-4">
               <h1 className="text-2xl font-semibold text-foreground mb-8 pt-16">
                 Teams
               </h1>
