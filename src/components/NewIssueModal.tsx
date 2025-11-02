@@ -4,6 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -390,6 +391,8 @@ export const NewIssueModal = ({ open, onOpenChange, onIssueCreated }: NewIssueMo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl w-full p-0 gap-0 bg-surface border-border rounded-lg [&>button]:hidden">
+        <DialogTitle className="sr-only">New issue</DialogTitle>
+        <DialogDescription className="sr-only">Create a new issue</DialogDescription>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">

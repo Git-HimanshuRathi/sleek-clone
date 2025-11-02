@@ -25,7 +25,7 @@ export const TaskCard = ({ task, onDragStart, onClick }: TaskCardProps) => {
       className="group p-3 rounded-lg border border-border bg-card hover:border-border/80 cursor-pointer transition-all duration-150 hover:shadow-md"
     >
       <div className="space-y-2">
-        <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-150">
+        <h4 className="text-sm font-medium text-foreground group-hover:text-foreground transition-colors duration-150">
           {task.title}
         </h4>
 
