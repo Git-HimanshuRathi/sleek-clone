@@ -66,9 +66,10 @@ const DashedSquare = ({ className }: { className?: string }) => (
 );
 
 // Solid chevron icons
-const SolidChevronDown = ({ className }: { className?: string }) => (
+const SolidChevronDown = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     className={className}
+    style={style}
     width="12"
     height="12"
     viewBox="0 0 12 12"
@@ -79,9 +80,10 @@ const SolidChevronDown = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const SolidChevronRight = ({ className }: { className?: string }) => (
+const SolidChevronRight = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     className={className}
+    style={style}
     width="12"
     height="12"
     viewBox="0 0 12 12"

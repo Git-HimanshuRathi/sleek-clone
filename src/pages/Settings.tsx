@@ -426,7 +426,7 @@ const Settings = () => {
         <h2 className="text-lg font-semibold text-foreground mb-4">General</h2>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          {/* Default home view */}
+        {/* Default home view */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Default home view</label>
@@ -444,11 +444,11 @@ const Settings = () => {
                 <SelectItem value="all-issues">All issues</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Display full names */}
+        {/* Display full names */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Display full names</label>
@@ -457,11 +457,11 @@ const Settings = () => {
               </p>
             </div>
             <Switch defaultChecked className="data-[state=checked]:bg-[#5E6AD2] data-[state=unchecked]:bg-[#707173] [&>*]:data-[state=checked]:bg-[#fffeff]" />
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* First day of the week */}
+        {/* First day of the week */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">First day of the week</label>
@@ -478,11 +478,11 @@ const Settings = () => {
                 <SelectItem value="monday">Monday</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Convert text emoticons */}
+        {/* Convert text emoticons */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Convert text emoticons into emojis</label>
@@ -500,7 +500,7 @@ const Settings = () => {
         <h2 className="text-lg font-semibold text-foreground mb-4">Interface and theme</h2>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          {/* App sidebar */}
+        {/* App sidebar */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">App sidebar</label>
@@ -515,11 +515,11 @@ const Settings = () => {
             >
               Customize
             </Button>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Font size */}
+        {/* Font size */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Font size</label>
@@ -537,11 +537,11 @@ const Settings = () => {
                 <SelectItem value="large">Large</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Use pointer cursors */}
+        {/* Use pointer cursors */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Use pointer cursors</label>
@@ -550,11 +550,11 @@ const Settings = () => {
               </p>
             </div>
             <Switch className="data-[state=checked]:bg-[#5E6AD2] data-[state=unchecked]:bg-[#707173]" />
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Interface theme */}
+        {/* Interface theme */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Interface theme</label>
@@ -572,11 +572,11 @@ const Settings = () => {
                 <SelectItem value="dark">• Aa Dark</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Light theme */}
+        {/* Light theme */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Light</label>
@@ -593,11 +593,11 @@ const Settings = () => {
                 <SelectItem value="light-alt">• Aa Light Alt</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Dark theme */}
+        {/* Dark theme */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Dark</label>
@@ -623,7 +623,7 @@ const Settings = () => {
         <h2 className="text-lg font-semibold text-foreground mb-4">Desktop application</h2>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          {/* Open in desktop app */}
+        {/* Open in desktop app */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Open in desktop app</label>
@@ -632,11 +632,11 @@ const Settings = () => {
               </p>
             </div>
             <Switch className="data-[state=checked]:bg-[#5E6AD2] data-[state=unchecked]:bg-[#707173]" />
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* App notification badge */}
+        {/* App notification badge */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">App notification badge</label>
@@ -645,11 +645,11 @@ const Settings = () => {
               </p>
             </div>
             <Switch defaultChecked className="data-[state=checked]:bg-[#5E6AD2] data-[state=unchecked]:bg-[#707173] [&>*]:data-[state=checked]:bg-[#fffeff]" />
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Check spelling */}
+        {/* Check spelling */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Check spelling</label>
@@ -667,7 +667,7 @@ const Settings = () => {
         <h2 className="text-lg font-semibold text-foreground mb-4">Automations and workflows</h2>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          {/* Auto-assign to self */}
+        {/* Auto-assign to self */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Auto-assign to self</label>
@@ -676,11 +676,11 @@ const Settings = () => {
               </p>
             </div>
             <Switch className="data-[state=checked]:bg-[#5E6AD2] data-[state=unchecked]:bg-[#707173]" />
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* Git attachment format */}
+        {/* Git attachment format */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Git attachment format</label>
@@ -698,11 +698,11 @@ const Settings = () => {
                 <SelectItem value="both">Both</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* On git branch copy, move issue to started status */}
+        {/* On git branch copy, move issue to started status */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">On git branch copy, move issue to started status</label>
@@ -711,11 +711,11 @@ const Settings = () => {
               </p>
             </div>
             <Switch className="data-[state=checked]:bg-[#5E6AD2] data-[state=unchecked]:bg-[#707173]" />
-          </div>
+        </div>
           
           <div className="h-px bg-[#25272E] mx-5"></div>
 
-          {/* On move to started status, assign to yourself */}
+        {/* On move to started status, assign to yourself */}
           <div className="flex items-center justify-between px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">On move to started status, assign to yourself</label>
@@ -2855,48 +2855,48 @@ const Settings = () => {
       <aside className="w-60 border-r border-border bg-[#090909] flex flex-col relative">
         {/* Back to app - Fixed at top */}
         <div className="sticky top-0 bg-[#090909] z-10 p-4 pb-0">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-          >
-            <ArrowLeft className="w-4 h-4" />
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
             <span>Back to app</span>
-          </button>
+        </button>
         </div>
 
         {/* Settings Navigation - Scrollable */}
         <div className="p-4 pt-0 flex-1 overflow-y-auto">
-          <nav className="space-y-6">
-            {Object.entries(groupedItems).map(([section, items]) => (
-              <div key={section}>
-                {section !== "Top" && (
-                  <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
-                    {section}
-                  </h3>
-                )}
-                <div className="space-y-1">
-                  {items.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeSection === item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => setActiveSection(item.id)}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors",
-                          isActive
-                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                            : "text-sidebar-foreground hover:bg-surface"
-                        )}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="flex-1 text-left">{item.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+        <nav className="space-y-6">
+          {Object.entries(groupedItems).map(([section, items]) => (
+            <div key={section}>
+              {section !== "Top" && (
+                <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                  {section}
+                </h3>
+              )}
+              <div className="space-y-1">
+                {items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSection(item.id)}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors",
+                        isActive
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-surface"
+                      )}
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span className="flex-1 text-left">{item.name}</span>
+                    </button>
+                  );
+                })}
               </div>
-            ))}
+            </div>
+          ))}
             
             {/* Your teams section */}
             <div>
@@ -2924,7 +2924,7 @@ const Settings = () => {
                 </button>
               </div>
             </div>
-          </nav>
+        </nav>
         </div>
         
         {/* Question mark icon - Fixed at bottom left */}
