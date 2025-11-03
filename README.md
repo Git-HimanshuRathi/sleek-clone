@@ -1,4 +1,4 @@
-# Sleek Clone - Linear Issue Tracker Clone
+# Linear Clone - Linear Issue Tracker Clone
 
 A modern, full-featured issue tracking application inspired by Linear, built with React, TypeScript, and SQLite. This clone replicates Linear's core functionality including issue management, projects, views, teams, and JIRA integration.
 
