@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import React from "react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { 
   Inbox, 
   CheckSquare, 
@@ -119,9 +120,12 @@ interface SidebarProps {
   onCommandClick?: () => void;
   onWidthChange?: (width: number) => void;
   onToggleRef?: (toggleFn: () => void) => void;
+  isMobile?: boolean;
+  sidebarOpen?: boolean;
+  setSidebarOpen?: (open: boolean) => void;
 }
 
-export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarProps) => {
+export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef, isMobile = false, sidebarOpen = false, setSidebarOpen }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem("sidebar-collapsed");
     return saved === "true";
@@ -144,7 +148,7 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
       const newCollapsed = !prev;
       localStorage.setItem("sidebar-collapsed", String(newCollapsed));
       if (onWidthChange) {
-        onWidthChange(newCollapsed ? 64 : 260);
+        onWidthChange(newCollapsed ? 64 : 200);
       }
       return newCollapsed;
     });
@@ -174,12 +178,9 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
     window.location.href = "/";
   };
 
-  return (
-    <>
-      <aside 
-        className="bg-[#0B0B0D] flex flex-col h-full fixed left-0 top-0 overflow-y-auto transition-all duration-200 ease-in-out"
-        style={{ width: `${sidebarWidth}px` }}
-      >
+  // Sidebar content component (reused for desktop and mobile)
+  const SidebarContent = () => (
+    <div className="bg-[#0B0B0D] flex flex-col h-full overflow-y-auto w-full">
         {/* User/Workspace selector */}
         <div className="p-2.5 pb-1.5">
           <div className="flex items-center gap-2">
@@ -190,13 +191,20 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                   {!isCollapsed && (
                     <>
                       <span className="text-sm font-medium flex-1 text-left truncate" style={{ fontSize: "14px", fontWeight: 500, color: "#FFFFFF" }}>Hacakthon-L...</span>
-                      <SolidChevronDown className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                      <div style={{ color: "#B4B5B8" }}>
+                        <SolidChevronDown className="w-3.5 h-3.5" />
+                      </div>
                     </>
                   )}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <DropdownMenuItem onClick={() => {
+                  navigate("/settings");
+                  if (isMobile && setSidebarOpen) {
+                    setSidebarOpen(false);
+                  }
+                }}>
                   <span>Settings</span>
                   <DropdownMenuShortcut>G then S</DropdownMenuShortcut>
                 </DropdownMenuItem>
@@ -250,10 +258,16 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
       {/* Main Navigation */}
       <nav className="flex-1 px-2 pt-0.5 overflow-y-auto">
         <div className="space-y-0.5 mb-2.5">
-          {mainNav.map((item) => (
+            {mainNav.map((item) => (
             <NavLink
               key={item.name}
               to={item.href}
+              onClick={() => {
+                // Close sidebar on mobile when navigating
+                if (isMobile && setSidebarOpen) {
+                  setSidebarOpen(false);
+                }
+              }}
               className={({ isActive }) =>
                 cn(
                   "flex items-center h-8 rounded-md",
@@ -318,6 +332,10 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                     if (item.id === "projects" || item.id === "views") {
                       setTempVisibleItem(null);
                     }
+                    // Close sidebar on mobile when navigating
+                    if (isMobile && setSidebarOpen) {
+                      setSidebarOpen(false);
+                    }
                   }}
                   className={({ isActive }) =>
                     cn(
@@ -365,6 +383,9 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                     onClick={() => {
                       setTempVisibleItem("teams");
                       navigate("/teams");
+                      if (isMobile && setSidebarOpen) {
+                        setSidebarOpen(false);
+                      }
                     }}
                     className="rounded-md px-3 py-2 cursor-pointer"
                     style={{
@@ -386,6 +407,9 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                     onClick={() => {
                       setTempVisibleItem("members");
                       navigate("/members");
+                      if (isMobile && setSidebarOpen) {
+                        setSidebarOpen(false);
+                      }
                     }}
                     className="rounded-md px-3 py-2 cursor-pointer"
                     style={{
@@ -458,11 +482,13 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                   {!isCollapsed && (
                     <>
                       <span className="flex-1 text-left text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>Sst.scaler</span>
-                      {teamExpanded ? (
-                        <SolidChevronDown className="w-3 h-3" style={{ color: "#B4B5B8" }} />
-                      ) : (
-                        <SolidChevronRight className="w-3 h-3" style={{ color: "#B4B5B8" }} />
-                      )}
+                      <div style={{ color: "#B4B5B8" }}>
+                        {teamExpanded ? (
+                          <SolidChevronDown className="w-3 h-3" />
+                        ) : (
+                          <SolidChevronRight className="w-3 h-3" />
+                        )}
+                      </div>
                     </>
                   )}
                 </button>
@@ -470,6 +496,11 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                   <div className="ml-5 space-y-0">
                     <NavLink
                       to="/team/issues"
+                      onClick={() => {
+                        if (isMobile && setSidebarOpen) {
+                          setSidebarOpen(false);
+                        }
+                      }}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
@@ -485,6 +516,11 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                     </NavLink>
                     <NavLink
                       to="/team/projects"
+                      onClick={() => {
+                        if (isMobile && setSidebarOpen) {
+                          setSidebarOpen(false);
+                        }
+                      }}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
@@ -500,6 +536,11 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                     </NavLink>
                     <NavLink
                       to="/team/views"
+                      onClick={() => {
+                        if (isMobile && setSidebarOpen) {
+                          setSidebarOpen(false);
+                        }
+                      }}
                       className={({ isActive }) =>
                         cn(
                           "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
@@ -567,6 +608,11 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                   <NavLink
                     key={item.name}
                     to={item.href}
+                    onClick={() => {
+                      if (isMobile && setSidebarOpen) {
+                        setSidebarOpen(false);
+                      }
+                    }}
                     className={({ isActive }) =>
                       cn(
                         "flex items-center gap-1.5 h-7 rounded-md pl-1.5",
@@ -577,7 +623,13 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
                     }
                     style={{ transition: "opacity 120ms ease-in-out" }}
                   >
-                    <item.icon className="w-3.5 h-3.5" style={{ color: "#B4B5B8" }} />
+                    <item.icon 
+                      className="w-3.5 h-3.5" 
+                      style={{ 
+                        color: "#B4B5B8",
+                        transform: item.name === "Import issues" ? "rotate(180deg)" : "none"
+                      }} 
+                    />
                     <span className="text-sm font-medium" style={{ fontSize: "13px", fontWeight: 500 }}>{item.name}</span>
                   </NavLink>
                 );
@@ -587,9 +639,44 @@ export const Sidebar = ({ onCommandClick, onWidthChange, onToggleRef }: SidebarP
           </div>
         )}
       </nav>
-    </aside>
+    </div>
+  );
 
-    <NewIssueModal
+  // On mobile, wrap in Sheet; on desktop, use fixed sidebar
+  if (isMobile) {
+    return (
+      <>
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetContent side="left" className="w-[280px] p-0 bg-[#0B0B0D] border-r border-border">
+            <SidebarContent />
+          </SheetContent>
+        </Sheet>
+        <NewIssueModal
+          open={isNewIssueModalOpen}
+          onOpenChange={setIsNewIssueModalOpen}
+        />
+        <InvitePeopleModal
+          open={isInvitePeopleModalOpen}
+          onOpenChange={setIsInvitePeopleModalOpen}
+        />
+        <CustomizeSidebarModal
+          open={isCustomizeSidebarModalOpen}
+          onOpenChange={setIsCustomizeSidebarModalOpen}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <aside 
+        className="bg-[#0B0B0D] hidden md:flex flex-col h-full fixed left-0 top-0 overflow-y-auto transition-all duration-200 ease-in-out z-30"
+        style={{ width: `${sidebarWidth}px` }}
+      >
+        <SidebarContent />
+      </aside>
+
+      <NewIssueModal
       open={isNewIssueModalOpen}
       onOpenChange={setIsNewIssueModalOpen}
     />

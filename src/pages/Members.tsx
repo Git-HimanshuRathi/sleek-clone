@@ -62,9 +62,9 @@ const Members = () => {
   const membersCount = members.length;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden bg-background" style={{ marginTop: "8px" }}>
       {/* Top Header */}
-      <div className="px-5 pb-2 border-b flex items-center justify-between" style={{ borderColor: "#1A1C1E" }}>
+      <div className="px-3 md:px-5 border-b flex items-center justify-between" style={{ borderColor: "#1A1C1E", paddingTop: "8px", paddingBottom: "8px" }}>
         <h1 className="text-sm font-medium text-foreground">Members {membersCount > 0 ? membersCount : ""}</h1>
         <div className="flex items-center gap-2">
           <Button
@@ -78,7 +78,7 @@ const Members = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="border-b px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
+      <div className="border-b px-3 md:px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
         <div className="flex items-center gap-2">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -92,7 +92,7 @@ const Members = () => {
 
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-5">
+        <div className="px-3 md:px-5">
           {/* Table Header */}
           <div className="flex items-center py-2 border-b border-border">
             <div className="flex-1 text-xs font-medium text-muted-foreground">Name ↓</div>
@@ -108,7 +108,7 @@ const Members = () => {
             members.map((member) => (
               <div
                 key={member.id}
-                className="flex items-center py-2 border-b border-border hover:bg-muted/30 transition-colors"
+                className="flex items-center py-2 border-b border-border hover:bg-surface/70 transition-colors"
               >
                 {/* Name */}
                 <div className="flex items-center gap-3 flex-1">

@@ -159,13 +159,6 @@ const MyIssues = () => {
     }
   }, [isReady]);
 
-  // Fetch issues from JIRA API
-  const { data: issues = [], isLoading, isError, error, refetch } = useIssues({
-    projectKey: useApiData ? projectKey : undefined,
-    enabled: useApiData,
-    maxResults: 50,
-  });
-
   // Determine active tab from URL
   const activeTab = (() => {
     if (tab) return tab;
@@ -174,6 +167,41 @@ const MyIssues = () => {
     const lastSegment = path.split("/").pop();
     return lastSegment || "my-issues";
   })();
+
+  // Build JQL query based on active tab
+  const getJqlQuery = () => {
+    const currentUser = "LB Lakshya Bagani";
+    if (!useApiData || !projectKey) return undefined;
+    
+    switch (activeTab) {
+      case "assigned":
+        // Issues assigned to current user (match by initials or display name)
+        // JIRA format: assignee in ("LB Lakshya Bagani", "Lakshya Bagani", etc.)
+        return `project=${projectKey} AND assignee IN ("LB Lakshya Bagani", "Lakshya Bagani") ORDER BY created DESC`;
+      case "created":
+        // Issues created by current user
+        return `project=${projectKey} AND creator IN ("LB Lakshya Bagani", "Lakshya Bagani") ORDER BY created DESC`;
+      case "subscribed":
+        // For subscribed, we'll use watchers if available, otherwise fallback to assigned
+        // JIRA doesn't have direct "subscribed" - we'll use watched issues
+        return `project=${projectKey} AND watcher = currentUser() ORDER BY created DESC`;
+      case "activity":
+        // Recent activity - issues updated recently where user is involved
+        return `project=${projectKey} AND (assignee IN ("LB Lakshya Bagani", "Lakshya Bagani") OR creator IN ("LB Lakshya Bagani", "Lakshya Bagani")) ORDER BY updated DESC`;
+      case "my-issues":
+      default:
+        // Default: issues assigned to user
+        return `project=${projectKey} AND assignee IN ("LB Lakshya Bagani", "Lakshya Bagani") ORDER BY created DESC`;
+    }
+  };
+
+  // Fetch issues from JIRA API with JQL query based on active tab
+  const { data: issues = [], isLoading, isError, error, refetch } = useIssues({
+    projectKey: useApiData ? projectKey : undefined,
+    jql: getJqlQuery(),
+    enabled: useApiData,
+    maxResults: 100, // Increased for better coverage
+  });
 
   useEffect(() => {
     // Also load local issues for backward compatibility
@@ -234,27 +262,27 @@ const MyIssues = () => {
     }));
   };
 
-  // Filter issues based on active tab
+  // Filter issues based on active tab (client-side filtering as fallback/additional filtering)
   const getFilteredIssues = () => {
-    const currentUser = "LB Lakshya Bagani";
+    // If using API with JQL, most filtering is done server-side, but we can do additional client-side filtering
+    // For subscribed and activity, we may need additional client-side filtering
+    let filtered = [...issues];
     
+    // Additional client-side filtering if needed (JQL already handles most of it)
     switch (activeTab) {
-      case "assigned":
-        // Show issues assigned to the user
-        return issues.filter((issue) => issue.assignee === currentUser);
-      case "created":
-        // Show issues created by the user
-        return issues.filter((issue) => issue.createdBy === currentUser);
       case "subscribed":
-        // For now, show empty (can be implemented later with subscription tracking)
-        return [];
+        // If JQL for subscribed doesn't work perfectly, keep all returned issues
+        // In a real app, this would track actual subscriptions
+        return filtered;
       case "activity":
-        // For now, show empty (can be implemented later with activity tracking)
-        return [];
+        // Already sorted by updated DESC from JQL, just return all
+        return filtered;
+      case "assigned":
+      case "created":
       case "my-issues":
       default:
-        // Show all issues assigned to the user (same as assigned for now)
-        return issues.filter((issue) => issue.assignee === currentUser);
+        // JQL already filtered these, just return all
+        return filtered;
     }
   };
 
@@ -333,11 +361,11 @@ const MyIssues = () => {
   const currentUser = "LB Lakshya Bagani";
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background" style={{ marginTop: "8px" }}>
       {/* Tabs */}
-      <div className="border-b border-border px-5 pt-1 pb-3">
-        <div className="flex items-center justify-between">
-          <nav className="flex items-center gap-1">
+      <div className="border-b border-border px-3 md:px-5" style={{ paddingTop: "8px", paddingBottom: "8px" }}>
+        <div className="flex items-center justify-between gap-2">
+          <nav className="flex items-center gap-1 overflow-x-auto flex-shrink-0">
             {tabs.map((tab) => {
               if (tab.name === "My issues") {
                 return (
@@ -359,7 +387,7 @@ const MyIssues = () => {
                       "px-2.5 py-1.5 text-xs font-medium transition-colors rounded-md border outline-none focus:outline-none focus:ring-0",
                     isActive
                         ? "bg-surface text-foreground border-border"
-                        : "text-foreground bg-transparent border-border hover:bg-surface/30"
+                        : "text-foreground bg-transparent border-border hover:bg-surface/70"
                   )
                 }
               >
@@ -372,7 +400,7 @@ const MyIssues = () => {
       </div>
 
       {/* Filter and Display buttons */}
-      <div className="border-b flex items-center justify-between px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
+      <div className="border-b flex items-center justify-between px-3 md:px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
         <button
           className="flex items-center gap-1.5 h-7 px-2 rounded-md transition-colors"
           style={{
@@ -470,7 +498,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -502,7 +530,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -535,7 +563,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -575,7 +603,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -722,7 +750,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -750,7 +778,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -777,7 +805,7 @@ const MyIssues = () => {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-muted/50 w-[133px] justify-center"
+                          className="h-7 text-xs gap-1.5 px-2 border-border hover:bg-surface/70 w-[133px] justify-center"
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = "#1A1C1E";
                           }}
@@ -1076,8 +1104,8 @@ const MyIssues = () => {
       {!isLoading && !isError && hasIssues ? (
         viewType === "board" ? (
           /* Board View - Grouped by Status */
-          <div ref={issuesContainerRef} className="flex-1 overflow-x-auto overflow-y-hidden px-5 py-3">
-            <div className="flex gap-4 h-full">
+          <div ref={issuesContainerRef} className="flex-1 overflow-x-auto overflow-y-hidden px-3 md:px-5 py-3">
+            <div className="flex gap-2 md:gap-4 h-full min-w-0">
           {statusOrder.map((status) => {
                 const statusIssues = issuesByStatus[status] || [];
                 // Only show columns that have issues (unless showEmptyColumns is enabled)
@@ -1107,10 +1135,10 @@ const MyIssues = () => {
                             data-issue-row
                             onClick={(e) => handleRowClick(e, issue.id)}
                             className={cn(
-                              "p-2 rounded-md border border-border bg-card cursor-pointer transition-colors group relative",
+                              "p-2 rounded-md border border-border bg-transparent cursor-pointer transition-colors group relative",
                               isChecked
-                                ? "bg-muted/50 border-muted"
-                                : "hover:bg-muted/50"
+                                ? "bg-surface/70 border-border"
+                                : "hover:bg-surface/70"
                             )}
                           >
                             {/* Avatar - top right corner */}
@@ -1266,8 +1294,8 @@ const MyIssues = () => {
                 className={cn(
                   "flex items-center gap-2.5 px-1 py-1.5 rounded-md transition-colors group cursor-pointer",
                   isChecked
-                    ? "bg-muted/50 hover:bg-muted/50"
-                    : "hover:bg-muted/50"
+                    ? "bg-surface/70 hover:bg-surface/70"
+                    : "hover:bg-surface/70"
                 )}
               >
                 {/* Checkbox on far left - visible when checked or on hover */}

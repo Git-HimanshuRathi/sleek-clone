@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Filter, SlidersHorizontal, Plus, Circle, CircleDot, Loader2, AlertCircle } from "lucide-react";
+import { Filter, SlidersHorizontal, Plus, Circle, CircleDot, Loader2, AlertCircle, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Issue } from "@/components/NewIssueModal";
+import { NewIssueModal, Issue } from "@/components/NewIssueModal";
 import { Avatar } from "@/components/Avatar";
 import { useIssues } from "@/hooks/useJiraIssues";
 import { db } from "@/db/database";
@@ -52,8 +52,39 @@ const DottedCircleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Two stacked rotated squares (diamonds) with plus sign - matching the provided icon
+const StackedDiamondsPlusIcon = ({ className }: { className?: string }) => (
+  <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none">
+    {/* Bottom diamond (base layer) */}
+    <rect
+      x="4"
+      y="4"
+      width="8"
+      height="8"
+      transform="rotate(45 8 8)"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      fill="none"
+    />
+    {/* Top diamond (with plus sign) */}
+    <rect
+      x="3"
+      y="3"
+      width="8"
+      height="8"
+      transform="rotate(45 7 7)"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      fill="none"
+    />
+    {/* Plus sign in the top diamond */}
+    <line x1="7" y1="5" x2="7" y2="9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    <line x1="5" y1="7" x2="9" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
 const tabs = [
-  { name: "All issues", href: "/team/issues", icon: StackedSquaresIcon },
+  { name: "All issues", href: "/team/issues", icon: Copy },
   { name: "Active", href: "/team/issues/active", icon: HalfCircleIcon },
   { name: "Backlog", href: "/team/issues/backlog", icon: DottedCircleIcon },
 ];
@@ -61,6 +92,7 @@ const tabs = [
 const TeamIssues = () => {
   const location = useLocation();
   const { isReady } = useDatabase();
+  const [isNewIssueModalOpen, setIsNewIssueModalOpen] = useState(false);
 
   // Get project key from database or use default
   const [projectKey, setProjectKey] = useState("FLINK");
@@ -171,9 +203,9 @@ const TeamIssues = () => {
     : ["Backlog", "Todo", "In Progress", "Done", "Cancelled"];
 
   return (
-    <div className="h-full flex flex-col bg-[#0D0F10]">
+    <div className="h-full flex flex-col bg-[#0D0F10]" style={{ marginTop: "8px" }}>
       {/* Top Navigation Tabs */}
-      <div className="border-b px-6 py-0" style={{ borderColor: "#1A1C1E" }}>
+      <div className="border-b px-3 md:px-5" style={{ borderColor: "#1A1C1E", paddingTop: "8px", paddingBottom: "8px" }}>
         <div className="flex items-center justify-between">
           <nav className="flex items-center gap-1">
             {tabs.map((tab) => {
@@ -226,13 +258,41 @@ const TeamIssues = () => {
                     }
                   }}
                 >
-                  <div style={{ color: isActive ? "#EDEDED" : "#A0A0A0" }}>
-                    <IconComponent className="w-4 h-4" />
-                  </div>
+                  <IconComponent className="w-4 h-4" style={{ color: isActive ? "#EDEDED" : "#A0A0A0" }} />
                   <span>{tab.name}</span>
                 </NavLink>
               );
             })}
+            
+            {/* New Issue Button - positioned beside Backlog */}
+            <button
+              onClick={() => setIsNewIssueModalOpen(true)}
+              className={cn(
+                "flex items-center justify-center h-8 rounded-lg transition-all duration-150 ease"
+              )}
+              style={{
+                padding: "0 8px",
+                height: "32px",
+                width: "32px",
+                borderRadius: "8px",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.35)",
+                background: "transparent",
+                color: "#A0A0A0",
+                border: "1px solid transparent",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#1A1C1E";
+                e.currentTarget.style.borderColor = "#2B2D2F";
+                e.currentTarget.style.color = "#EDEDED";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "transparent";
+                e.currentTarget.style.borderColor = "transparent";
+                e.currentTarget.style.color = "#A0A0A0";
+              }}
+            >
+              <StackedDiamondsPlusIcon className="w-4 h-4" />
+            </button>
           </nav>
 
           {/* Right side icon - Stacked squares with plus */}
@@ -243,7 +303,7 @@ const TeamIssues = () => {
       </div>
 
       {/* Filter and Display controls */}
-      <div className="border-b flex items-center justify-between px-6 py-2.5" style={{ borderColor: "#1A1C1E" }}>
+      <div className="border-b flex items-center justify-between px-3 md:px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
         <button
           className="flex items-center gap-1.5 h-7 px-2 rounded-md transition-colors"
           style={{
@@ -306,7 +366,7 @@ const TeamIssues = () => {
 
       {/* Content */}
       {!isLoading && !isError && filteredIssues.length > 0 ? (
-        <div className="flex-1 overflow-y-auto px-6 py-3">
+        <div className="flex-1 overflow-y-auto px-3 md:px-5 py-3">
           {statusOrder.map((status) => {
             const statusIssues = getIssuesByStatus(status);
             if (statusIssues.length === 0) return null;
@@ -338,7 +398,7 @@ const TeamIssues = () => {
                   {statusIssues.map((issue) => (
                     <div
                       key={issue.id}
-                      className="flex items-center gap-2.5 px-1 py-1.5 rounded-md hover:bg-surface transition-colors group"
+                      className="flex items-center gap-2.5 px-1 py-1.5 rounded-md hover:bg-surface/70 transition-colors group"
                     >
                       {/* Priority indicator */}
                       {getPriorityIcon(issue.priority)}
@@ -381,6 +441,16 @@ const TeamIssues = () => {
           </div>
         </div>
       )}
+      
+      {/* New Issue Modal */}
+      <NewIssueModal
+        open={isNewIssueModalOpen}
+        onOpenChange={setIsNewIssueModalOpen}
+        onIssueCreated={() => {
+          // Issues will refresh automatically via the useIssues hook
+          window.dispatchEvent(new Event('issuesUpdated'));
+        }}
+      />
     </div>
   );
 };

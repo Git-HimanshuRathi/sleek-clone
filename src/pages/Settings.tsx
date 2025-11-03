@@ -476,7 +476,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
         {/* Default home view */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Default home view</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -498,7 +498,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Display full names */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Display full names</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -511,7 +511,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* First day of the week */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">First day of the week</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -532,7 +532,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Convert text emoticons */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Convert text emoticons into emojis</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -550,7 +550,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
         {/* App sidebar */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">App sidebar</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -569,7 +569,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Font size */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Font size</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -591,7 +591,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Use pointer cursors */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Use pointer cursors</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -604,7 +604,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Interface theme */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Interface theme</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -626,7 +626,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Light theme */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Light</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -647,7 +647,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Dark theme */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Dark</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -673,7 +673,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
         {/* Open in desktop app */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Open in desktop app</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -686,7 +686,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* App notification badge */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">App notification badge</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -699,7 +699,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Check spelling */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Check spelling</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -717,7 +717,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
         {/* Auto-assign to self */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Auto-assign to self</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -730,7 +730,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* Git attachment format */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">Git attachment format</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -752,7 +752,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* On git branch copy, move issue to started status */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">On git branch copy, move issue to started status</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -765,7 +765,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
         {/* On move to started status, assign to yourself */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex-1">
               <label className="text-sm font-medium text-foreground">On move to started status, assign to yourself</label>
               <p className="text-sm text-muted-foreground mt-1">
@@ -787,7 +787,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
           {/* Profile picture */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#25272E] border-2 border-[#FF9500] flex items-center justify-center">
                 <span className="text-lg font-semibold text-[#FF9500]">AD</span>
@@ -799,7 +799,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
           {/* Email */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <label className="text-sm font-medium text-foreground">Email</label>
             <div className="flex items-center gap-2">
               <span className="text-sm text-foreground">aaditdhariwal@gmail.com</span>
@@ -810,7 +810,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
           {/* Full name */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <label className="text-sm font-medium text-foreground">Full name</label>
             <Input
               value="Aadit Dhariwal"
@@ -962,7 +962,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
           {/* Changelog newsletter */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Changelog newsletter</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -980,7 +980,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
           {/* Marketing and onboarding */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Marketing and onboarding</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -998,7 +998,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
           {/* Invite accepted */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Invite accepted</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -1052,7 +1052,7 @@ const Settings = () => {
         </p>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <span className="text-sm text-muted-foreground">No passkeys registered</span>
             <Button className="bg-[#25272E] hover:bg-[#2a2c32] border border-[#33363D] text-foreground">
               New passkey
@@ -1069,7 +1069,7 @@ const Settings = () => {
         </p>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <span className="text-sm text-muted-foreground">No API keys created</span>
             <Button className="bg-[#25272E] hover:bg-[#2a2c32] border border-[#33363D] text-foreground">
               New API key
@@ -1138,7 +1138,7 @@ const Settings = () => {
         </p>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <span className="text-sm text-foreground">Workspace not connected to GitHub</span>
             <div className="flex items-center gap-1 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
               <span>Workspace settings</span>
@@ -1313,7 +1313,7 @@ const Settings = () => {
       {/* Enable SLAs Section */}
       <div className="space-y-3">
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Enable SLAs</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -1570,7 +1570,7 @@ const Settings = () => {
       {/* Enable Initiatives Section */}
       <div className="space-y-3">
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Enable Initiatives</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -1675,7 +1675,7 @@ const Settings = () => {
       {/* Enable Customer requests Section */}
       <div className="space-y-3">
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Enable Customer requests</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -1714,7 +1714,7 @@ const Settings = () => {
         </p>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <label className="text-sm font-medium text-foreground">Default team for customer requests</label>
             <Select>
               <SelectTrigger className="w-[200px] bg-[#25272E] border-[#33363D] text-foreground">
@@ -1765,7 +1765,7 @@ const Settings = () => {
       {/* Enable Pulse Section */}
       <div className="space-y-3">
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Enable Pulse</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -1808,7 +1808,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
           {/* Your personal schedule */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Your personal schedule</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -1881,7 +1881,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
           {/* Discussion summaries */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div className="flex items-center gap-3">
               <Reply className="w-5 h-5 text-foreground" />
               <div>
@@ -2085,7 +2085,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
           {/* First month of fiscal year */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <label className="text-sm font-medium text-foreground">First month of the fiscal year</label>
               <p className="text-xs text-muted-foreground mt-1">
@@ -2381,7 +2381,7 @@ const Settings = () => {
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
           {/* Invite links */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Enable invite links</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -2481,7 +2481,7 @@ const Settings = () => {
           <div className="h-px bg-[#25272E] mx-5"></div>
 
           {/* Restrict file uploads */}
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">Restrict file uploads</div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -2566,7 +2566,7 @@ const Settings = () => {
         </p>
         
         <div className="bg-[#17181B] rounded-lg overflow-hidden border border-[#2d3036]">
-          <div className="flex items-center justify-between px-5 py-4">
+          <div className="flex items-center justify-between px-3 md:px-5 py-4">
             <div>
               <div className="text-sm font-medium text-foreground">API key creation</div>
               <p className="text-xs text-muted-foreground mt-1">

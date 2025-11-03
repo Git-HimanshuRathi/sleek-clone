@@ -32,8 +32,8 @@ const Inbox = () => {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      <div className="border-b border-border px-6 py-4">
+    <div className="h-full flex flex-col bg-background" style={{ marginTop: "8px" }}>
+      <div className="border-b border-border px-5" style={{ paddingTop: "8px", paddingBottom: "8px" }}>
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-semibold">Inbox</h1>
           {unreadCount > 0 && (

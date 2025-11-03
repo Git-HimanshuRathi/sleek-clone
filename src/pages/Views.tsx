@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { CSSProperties } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { SlidersHorizontal, Plus, Save, BookOpen, Layers2, Star, MoreHorizontal, Trash2 } from "lucide-react";
+import { SlidersHorizontal, Plus, Save, BookOpen, Layers2, Star, MoreHorizontal, Trash2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +12,10 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { NewViewModal } from "@/components/NewViewModal";
+import { useIssues } from "@/hooks/useJiraIssues";
+import { useDatabase } from "@/hooks/useDatabase";
+import { db } from "@/db/database";
+import { Issue } from "@/components/NewIssueModal";
 
 // Custom stack icon with thin lines (matching Linear design)
 const StackedCardsIcon = ({ className }: { className?: string }) => (
@@ -62,6 +66,28 @@ const Views = () => {
   const [displayMenuOpen, setDisplayMenuOpen] = useState(false);
   const [isNewViewModalOpen, setIsNewViewModalOpen] = useState(false);
   const [views, setViews] = useState<View[]>([]);
+  const [selectedView, setSelectedView] = useState<View | null>(null);
+  const [viewIssues, setViewIssues] = useState<Issue[]>([]);
+  const { isReady } = useDatabase();
+  
+  // Get project key from database or use default
+  const [projectKey, setProjectKey] = useState("FLINK");
+  const [useApiData, setUseApiData] = useState(true);
+  
+  useEffect(() => {
+    if (isReady) {
+      try {
+        const savedProjectKey = db.getSetting("jiraProjectKey");
+        if (savedProjectKey) setProjectKey(savedProjectKey);
+        const savedUseApi = db.getSetting("useJiraApi");
+        setUseApiData(savedUseApi !== "false"); // Default to true
+      } catch (error) {
+        // Fallback to localStorage
+        setProjectKey(localStorage.getItem("jiraProjectKey") || "FLINK");
+        setUseApiData(localStorage.getItem("useJiraApi") !== "false");
+      }
+    }
+  }, [isReady]);
 
   useEffect(() => {
     const loadViews = () => {
@@ -83,6 +109,120 @@ const Views = () => {
       window.removeEventListener("viewsUpdated", handleViewsUpdated);
     };
   }, []);
+
+  // Build JQL query from view filters
+  const buildJqlFromView = (view: View): string | undefined => {
+    if (!useApiData || !projectKey) return undefined;
+    
+    const conditions: string[] = [`project=${projectKey}`];
+    
+    // Status filter
+    if (view.filters.status && view.filters.status.length > 0) {
+      const statusMap: Record<string, string> = {
+        "Backlog": "Backlog",
+        "Todo": "To Do",
+        "In Progress": "In Progress",
+        "Done": "Done",
+        "Cancelled": "Cancelled",
+      };
+      const jiraStatuses = view.filters.status
+        .map(s => statusMap[s] || s)
+        .map(s => `"${s}"`);
+      if (jiraStatuses.length > 0) {
+        conditions.push(`status IN (${jiraStatuses.join(", ")})`);
+      }
+    }
+    
+    // Priority filter
+    if (view.filters.priority && view.filters.priority.length > 0) {
+      const priorityMap: Record<string, string> = {
+        "Urgent": "Highest",
+        "High": "High",
+        "Medium": "Medium",
+        "Low": "Low",
+        "No priority": "Lowest",
+      };
+      const jiraPriorities = view.filters.priority
+        .map(p => priorityMap[p] || p)
+        .map(p => `"${p}"`);
+      if (jiraPriorities.length > 0) {
+        conditions.push(`priority IN (${jiraPriorities.join(", ")})`);
+      }
+    }
+    
+    // Assignee filter
+    if (view.filters.assignee && view.filters.assignee.trim()) {
+      conditions.push(`assignee IN ("${view.filters.assignee}")`);
+    }
+    
+    // Label filter
+    if (view.filters.label && view.filters.label.length > 0) {
+      const labels = view.filters.label.map(l => `"${l}"`).join(", ");
+      conditions.push(`labels IN (${labels})`);
+    }
+    
+    // Project filter (already handled by projectKey)
+    
+    // Ordering
+    let orderBy = "ORDER BY created DESC";
+    if (view.sortBy === "updated") {
+      orderBy = "ORDER BY updated DESC";
+    } else if (view.sortBy === "priority") {
+      orderBy = "ORDER BY priority DESC, created DESC";
+    }
+    
+    return `${conditions.join(" AND ")} ${orderBy}`;
+  };
+
+  // Fetch issues when a view is selected
+  const { data: fetchedIssues = [], isLoading, isError, error } = useIssues({
+    projectKey: selectedView && useApiData ? projectKey : undefined,
+    jql: selectedView ? buildJqlFromView(selectedView) : undefined,
+    enabled: !!selectedView && useApiData,
+    maxResults: 200,
+  });
+
+  useEffect(() => {
+    if (selectedView && fetchedIssues.length > 0) {
+      setViewIssues(fetchedIssues);
+    } else if (selectedView && !useApiData) {
+      // Fallback to client-side filtering when API is disabled
+      try {
+        const allIssues = db.getIssues();
+        const filtered = allIssues.filter((issue: any) => {
+          if (selectedView.filters.status && selectedView.filters.status.length > 0) {
+            if (!selectedView.filters.status.includes(issue.status)) return false;
+          }
+          if (selectedView.filters.priority && selectedView.filters.priority.length > 0) {
+            if (!selectedView.filters.priority.includes(issue.priority)) return false;
+          }
+          if (selectedView.filters.assignee && selectedView.filters.assignee.trim()) {
+            if (issue.assignee !== selectedView.filters.assignee) return false;
+          }
+          if (selectedView.filters.label && selectedView.filters.label.length > 0) {
+            const issueLabels = issue.labels || [];
+            if (!selectedView.filters.label.some(label => issueLabels.includes(label))) return false;
+          }
+          return true;
+        });
+        setViewIssues(filtered);
+      } catch (error) {
+        console.error('Error filtering issues:', error);
+        setViewIssues([]);
+      }
+    } else {
+      setViewIssues([]);
+    }
+  }, [selectedView, fetchedIssues, useApiData]);
+
+  const handleViewClick = (view: View) => {
+    setSelectedView(view);
+  };
+
+  const handleBackToViews = () => {
+    setSelectedView(null);
+    setViewIssues([]);
+  };
 
   const handleCreateNewView = () => {
     setIsNewViewModalOpen(true);
@@ -122,15 +262,29 @@ const Views = () => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
+  // Debug logging
+  useEffect(() => {
+    console.log("🔍 Views page debug:", {
+      viewsCount: views.length,
+      views: views,
+      selectedView: selectedView?.name || null,
+      viewIssuesCount: viewIssues.length,
+      isReady,
+      useApiData,
+      projectKey,
+      localStorageViews: localStorage.getItem("views"),
+    });
+  }, [views, selectedView, viewIssues, isReady, useApiData, projectKey]);
+
   return (
-    <div className="h-full flex flex-col" style={{ background: "linear-gradient(to bottom, #0d0d0e, #111113)" }}>
+    <div className="h-full flex flex-col overflow-hidden" style={{ background: "linear-gradient(to bottom, #0d0d0e, #111113)", marginTop: "8px" }}>
       {/* Top Navigation Bar */}
       <div 
-        className="flex items-center justify-between px-6"
+        className="flex items-center justify-between px-3 md:px-5 border-b"
         style={{ 
-          height: "48px", 
-          minHeight: "48px",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.06)"
+          borderBottom: "1px solid rgba(255, 255, 255, 0.06)",
+          paddingTop: "8px",
+          paddingBottom: "8px"
         }}
       >
         {/* Left Tabs */}
@@ -240,15 +394,104 @@ const Views = () => {
       </div>
 
       {/* Main Content */}
-      {views.length === 0 ? (
+      {selectedView ? (
+        /* View Detail - Show Issues */
+        <div className="flex-1 overflow-y-auto px-3 md:px-5 py-4">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleBackToViews}
+                className="h-7 w-7"
+              >
+                ←
+              </Button>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">{selectedView.name}</h2>
+                {selectedView.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{selectedView.description}</p>
+                )}
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {isLoading ? "Loading..." : `${viewIssues.length} issues`}
+            </div>
+          </div>
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center gap-4">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">Loading issues from JIRA...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {isError && !isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center gap-4 max-w-md text-center">
+                <AlertCircle className="w-12 h-12 text-destructive" />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-foreground">Failed to load issues</p>
+                  <p className="text-xs text-muted-foreground">{error?.message || "Unknown error occurred"}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Issues List */}
+          {!isLoading && !isError && (
+            <div className="space-y-2">
+              {viewIssues.length > 0 ? (
+                viewIssues.map((issue) => (
+                  <div
+                    key={issue.id}
+                    onClick={() => navigate(`/my-issues/issue/${issue.id}`)}
+                    className="p-3 rounded-md border border-border bg-transparent hover:bg-surface/70 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-xs text-muted-foreground font-mono">{issue.issueNumber}</span>
+                        <span className="text-sm text-foreground truncate">{issue.title}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {issue.status && (
+                          <span className="text-xs px-2 py-0.5 rounded bg-surface text-muted-foreground">
+                            {issue.status}
+                          </span>
+                        )}
+                        {issue.priority && issue.priority !== "No priority" && (
+                          <span className="text-xs px-2 py-0.5 rounded bg-surface text-muted-foreground">
+                            {issue.priority}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center py-12 text-center">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">No issues found</p>
+                    <p className="text-xs text-muted-foreground">
+                      Try adjusting your view filters or create a new view.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ) : views.length === 0 ? (
         /* Empty State */
         <div 
-          className="flex items-center justify-center"
+          className="flex-1 flex items-center justify-center overflow-y-auto"
           style={{ 
-            minHeight: "calc(100vh - 48px)",
-            paddingTop: "0",
-            paddingBottom: "0",
-            marginTop: "-40px"
+            paddingTop: "40px",
+            paddingBottom: "40px",
           }}
         >
           <div 
@@ -256,10 +499,9 @@ const Views = () => {
             style={{ maxWidth: "480px", padding: "0 24px" }}
           >
             {/* Icon */}
-            <StackedCardsIcon 
-              className="text-foreground" 
-              style={{ marginBottom: "24px" }}
-            />
+            <div style={{ marginBottom: "24px" }}>
+              <StackedCardsIcon className="text-foreground" />
+            </div>
 
             {/* Title */}
             <h1 
@@ -345,18 +587,18 @@ const Views = () => {
         </div>
       ) : (
         /* Views List */
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="flex-1 overflow-y-auto px-3 md:px-5 py-3">
           <div className="max-w-4xl mx-auto space-y-3">
             {sortedViews.map((view) => (
               <div
                 key={view.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border bg-surface hover:bg-surface-hover transition-colors group"
+                className="flex items-center justify-between p-4 rounded-lg border border-border bg-surface hover:bg-surface/70 transition-colors group"
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <button
                     onClick={() => toggleFavorite(view.id)}
                     className={cn(
-                      "p-1 rounded hover:bg-surface transition-colors",
+                      "p-1 rounded hover:bg-surface/70 transition-colors",
                       view.isFavorite && "text-yellow-500"
                     )}
                   >
@@ -395,7 +637,7 @@ const Views = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => navigate(`/views/${view.id}`)}
+                    onClick={() => handleViewClick(view)}
                     className="h-8 w-8"
                   >
                     <Layers2 className="w-4 h-4" />
@@ -407,7 +649,7 @@ const Views = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/views/${view.id}`)}>
+                      <DropdownMenuItem onClick={() => handleViewClick(view)}>
                         Open view
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => toggleFavorite(view.id)}>

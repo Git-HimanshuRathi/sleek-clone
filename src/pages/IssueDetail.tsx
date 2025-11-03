@@ -396,12 +396,12 @@ const IssueDetail = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-background">
-      {/* Top Navigation Bar */}
-      <div className="border-b border-border py-2">
+    <div className="h-full flex flex-col bg-background" style={{ marginTop: "8px" }}>
+             {/* Top Navigation Bar */}
+             <div className="border-b border-border px-3 md:px-5" style={{ paddingTop: "8px", paddingBottom: "8px" }}>
         <div className="flex items-center">
           {/* Left: Breadcrumb */}
-          <div className="flex-1 flex items-center gap-2 text-xs px-5">
+          <div className="flex-1 flex items-center gap-2 text-xs">
             <button
               onClick={() => navigate("/my-issues")}
               className="text-muted-foreground hover:text-foreground"
@@ -410,12 +410,12 @@ const IssueDetail = () => {
             </button>
             <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
             <span className="text-foreground font-medium">{issue.issueNumber}</span>
-            <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+              <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <Star className="h-3.5 w-3.5" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -429,13 +429,13 @@ const IssueDetail = () => {
           {/* Right: Properties - aligned with right panel */}
           <div className="w-64 flex items-center gap-2 text-xs px-4 border-l border-border">
             <span className="text-foreground font-medium">Properties</span>
-            <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <Link2 className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <User className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-5 w-5 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <MoreHorizontal className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -524,8 +524,8 @@ const IssueDetail = () => {
           </div>
         </div>
 
-        {/* Right Panel - Properties */}
-        <div className="w-64 border-l border-border px-4 py-4 overflow-y-auto">
+               {/* Right Panel - Properties */}
+               <div className="hidden md:block w-64 border-l border-border px-4 py-4 overflow-y-auto">
           <div className="space-y-4">
             {propertiesExpanded && (
               <div className="flex flex-col gap-8">
@@ -565,7 +565,7 @@ const IssueDetail = () => {
                                       setStatusSearchOpen(false);
                                     }}
                                     className={cn(
-                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface-hover hover:text-foreground",
+                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface/70 hover:text-foreground",
                                       issue.status === option.value && "bg-surface text-foreground"
                                     )}
                                   >
@@ -625,7 +625,7 @@ const IssueDetail = () => {
                                       setPrioritySearchOpen(false);
                                     }}
                                     className={cn(
-                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface-hover hover:text-foreground",
+                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface/70 hover:text-foreground",
                                       issue.priority === option.value && "bg-surface text-foreground"
                                     )}
                                   >
@@ -682,7 +682,7 @@ const IssueDetail = () => {
                                     setAssigneeSearchValue("");
                                     setAssigneeSearchOpen(false);
                                   }}
-                                  className="cursor-pointer hover:bg-surface-hover hover:text-foreground"
+                                  className="cursor-pointer hover:bg-surface/70 hover:text-foreground"
                                 >
                                   <User className="h-4 w-4 mr-2" />
                                   <span className="flex-1">{member}</span>
@@ -739,7 +739,7 @@ const IssueDetail = () => {
                                     setLabelSearchOpen(false);
                                   }
                                 }}
-                                className="cursor-pointer font-medium hover:bg-surface-hover hover:text-foreground"
+                                className="cursor-pointer font-medium hover:bg-surface/70 hover:text-foreground"
                               >
                                 <Plus className="mr-2 h-4 w-4 text-foreground" />
                                 Create "{labelSearchValue.trim()}"
@@ -755,7 +755,7 @@ const IssueDetail = () => {
                                     const currentLabels = issue.labels || [];
                                     updateIssue({ labels: currentLabels.filter(l => l !== label) });
                                   }}
-                                  className="cursor-pointer hover:bg-surface-hover hover:text-foreground"
+                                  className="cursor-pointer hover:bg-surface/70 hover:text-foreground"
                                 >
                                   <div className={cn("w-2 h-2 rounded-full mr-2", getLabelColor(label))}></div>
                                   <span className="flex-1">{label}</span>
@@ -789,7 +789,7 @@ const IssueDetail = () => {
                                         setLabelSearchValue("");
                                         setLabelSearchOpen(false);
                                       }}
-                                      className="cursor-pointer hover:bg-surface-hover hover:text-foreground"
+                                      className="cursor-pointer hover:bg-surface/70 hover:text-foreground"
                                     >
                                       <div className={cn("w-2 h-2 rounded-full mr-2", labelInfo?.color || "bg-gray-500")}></div>
                                       {label}

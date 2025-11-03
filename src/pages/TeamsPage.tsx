@@ -101,9 +101,9 @@ const TeamsPage = () => {
   const teamsCount = teams.length;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden bg-background" style={{ marginTop: "8px" }}>
       {/* Top Header with Teams count and Action buttons */}
-      <div className="px-5 pb-2 border-b flex items-center justify-between" style={{ borderColor: "#1A1C1E" }}>
+      <div className="px-3 md:px-5 border-b flex items-center justify-between" style={{ borderColor: "#1A1C1E", paddingTop: "8px", paddingBottom: "8px" }}>
         <div className="flex items-center gap-2">
           <h1 className="text-sm font-medium text-foreground">Teams {teamsCount > 0 ? teamsCount : ""}</h1>
           {/* Display icon button next to Teams title */}
@@ -141,7 +141,7 @@ const TeamsPage = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-6 px-2 text-xs gap-1 border-border hover:bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          className="h-6 px-2 text-xs gap-1 border-border hover:bg-surface/70 focus-visible:ring-0 focus-visible:ring-offset-0"
                         >
                           {ordering}
                           <ChevronDown className="w-3 h-3" />
@@ -165,7 +165,7 @@ const TeamsPage = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 hover:bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-6 w-6 p-0 hover:bg-surface/70 focus-visible:ring-0 focus-visible:ring-offset-0"
                           >
                             <ArrowDown className="w-3.5 h-3.5 text-muted-foreground" />
                           </Button>
@@ -187,7 +187,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.membership ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.membership ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, membership: !displayProperties.membership })}
                   >
@@ -197,7 +197,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.projects ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.projects ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, projects: !displayProperties.projects })}
                   >
@@ -207,7 +207,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.cycle ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.cycle ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, cycle: !displayProperties.cycle })}
                   >
@@ -217,7 +217,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.members ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.members ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, members: !displayProperties.members })}
                   >
@@ -227,7 +227,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.owners ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.owners ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, owners: !displayProperties.owners })}
                   >
@@ -237,7 +237,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.created ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.created ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, created: !displayProperties.created })}
                   >
@@ -247,7 +247,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.updated ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.updated ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, updated: !displayProperties.updated })}
                   >
@@ -409,7 +409,7 @@ const TeamsPage = () => {
       </div>
 
       {/* Filter bar */}
-      <div className="border-b flex items-center justify-between px-5 py-1.5" style={{ borderColor: "#1A1C1E" }}>
+      <div className="border-b flex items-center justify-between px-3 md:px-5 py-1.5" style={{ borderColor: "#1A1C1E" }}>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -437,7 +437,7 @@ const TeamsPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-7 px-2 gap-1.5 text-xs border-border hover:bg-muted/50"
+                className="h-7 px-2 gap-1.5 text-xs border-border hover:bg-surface/70"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 Display
@@ -457,7 +457,7 @@ const TeamsPage = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-6 px-2 text-xs gap-1 border-border hover:bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                          className="h-6 px-2 text-xs gap-1 border-border hover:bg-surface/70 focus-visible:ring-0 focus-visible:ring-offset-0"
                         >
                           {ordering}
                           <ChevronDown className="w-3 h-3" />
@@ -481,7 +481,7 @@ const TeamsPage = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-6 w-6 p-0 hover:bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="h-6 w-6 p-0 hover:bg-surface/70 focus-visible:ring-0 focus-visible:ring-offset-0"
                           >
                             <ArrowDown className="w-3.5 h-3.5 text-muted-foreground" />
                           </Button>
@@ -503,7 +503,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.membership ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.membership ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, membership: !displayProperties.membership })}
                   >
@@ -513,7 +513,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.projects ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.projects ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, projects: !displayProperties.projects })}
                   >
@@ -523,7 +523,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.cycle ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.cycle ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, cycle: !displayProperties.cycle })}
                   >
@@ -533,7 +533,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.members ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.members ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, members: !displayProperties.members })}
                   >
@@ -543,7 +543,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.owners ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.owners ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, owners: !displayProperties.owners })}
                   >
@@ -553,7 +553,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.created ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.created ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, created: !displayProperties.created })}
                   >
@@ -563,7 +563,7 @@ const TeamsPage = () => {
                     variant="outline"
                     size="sm"
                     className={`h-6 px-2 text-xs border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${
-                      displayProperties.updated ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-muted/30'
+                      displayProperties.updated ? 'bg-muted/50 text-foreground' : 'bg-transparent text-muted-foreground hover:bg-surface/70'
                     }`}
                     onClick={() => setDisplayProperties({ ...displayProperties, updated: !displayProperties.updated })}
                   >
@@ -578,7 +578,7 @@ const TeamsPage = () => {
 
       {/* Table */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-5">
+        <div className="px-3 md:px-5">
           {/* Table Header */}
           <div className="flex items-center py-2 border-b border-border">
             <div className="flex-1 text-xs font-medium text-muted-foreground">Name</div>
@@ -595,7 +595,7 @@ const TeamsPage = () => {
             teams.map((team) => (
               <div
                 key={team.id}
-                className="flex items-center py-2 border-b border-border hover:bg-muted/30 transition-colors"
+                className="flex items-center py-2 border-b border-border hover:bg-surface/70 transition-colors"
               >
                 {/* Name */}
                 <div className="flex items-center gap-2 flex-1">

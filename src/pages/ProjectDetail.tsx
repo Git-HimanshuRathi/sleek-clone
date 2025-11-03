@@ -249,9 +249,9 @@ const ProjectDetail = () => {
   ];
 
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background" style={{ marginTop: "8px" }}>
       {/* Top Navigation Bar */}
-      <div className="border-b border-border px-6 py-3">
+      <div className="border-b border-border px-3 md:px-5" style={{ paddingTop: "8px", paddingBottom: "8px" }}>
         <div className="flex items-center justify-between">
           {/* Left: Breadcrumb */}
           <div className="flex items-center gap-2 text-sm">
@@ -263,12 +263,12 @@ const ProjectDetail = () => {
             </button>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
             <span className="text-foreground font-medium">{project.name}</span>
-            <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-6 w-6 ml-2 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <Star className="h-4 w-4" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -299,13 +299,13 @@ const ProjectDetail = () => {
 
           {/* Right: Icons */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <Bell className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <Link2 className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <SquareDot className="h-4 w-4" />
             </Button>
           </div>
@@ -371,7 +371,7 @@ const ProjectDetail = () => {
                                   setStatusSearchOpen(false);
                                 }}
                                 className={cn(
-                                  "cursor-pointer gap-3 px-3 py-2 hover:bg-surface-hover hover:text-foreground",
+                                  "cursor-pointer gap-3 px-3 py-2 hover:bg-surface/70 hover:text-foreground",
                                   project.status === option.value && "bg-surface text-foreground"
                                 )}
                               >
@@ -423,7 +423,7 @@ const ProjectDetail = () => {
                                   setPrioritySearchOpen(false);
                                 }}
                                 className={cn(
-                                  "cursor-pointer gap-3 px-3 py-2 hover:bg-surface-hover hover:text-foreground",
+                                  "cursor-pointer gap-3 px-3 py-2 hover:bg-surface/70 hover:text-foreground",
                                   project.priority === option.value && "bg-surface text-foreground"
                                 )}
                               >
@@ -660,7 +660,7 @@ const ProjectDetail = () => {
 
           {/* Milestone Button */}
           <div>
-            <Button variant="outline" className="gap-2 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+            <Button variant="outline" className="gap-2 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
               <Plus className="h-4 w-4" />
               Milestone
             </Button>
@@ -674,13 +674,13 @@ const ProjectDetail = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-foreground">Properties</h3>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
                   <Plus className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0"
+                  className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0"
                   onClick={() => setPropertiesExpanded(!propertiesExpanded)}
                 >
                   {propertiesExpanded ? (
@@ -736,7 +736,7 @@ const ProjectDetail = () => {
                                       setSidebarStatusSearchOpen(false);
                                     }}
                                     className={cn(
-                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface-hover hover:text-foreground",
+                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface/70 hover:text-foreground",
                                       project.status === option.value && "bg-surface text-foreground"
                                     )}
                                   >
@@ -814,7 +814,7 @@ const ProjectDetail = () => {
                                       setSidebarPrioritySearchOpen(false);
                                     }}
                                     className={cn(
-                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface-hover hover:text-foreground",
+                                      "cursor-pointer gap-3 px-3 py-2 hover:bg-surface/70 hover:text-foreground",
                                       project.priority === option.value && "bg-surface text-foreground"
                                     )}
                                   >
@@ -1003,7 +1003,7 @@ const ProjectDetail = () => {
                                     setSidebarLabelSearchOpen(false);
                                   }
                                 }}
-                                className="cursor-pointer font-medium hover:bg-surface-hover hover:text-foreground"
+                                className="cursor-pointer font-medium hover:bg-surface/70 hover:text-foreground"
                               >
                                 <Plus className="mr-2 h-4 w-4 text-foreground" />
                                 Create "{labelSearchValue.trim()}"
@@ -1019,7 +1019,7 @@ const ProjectDetail = () => {
                                     const currentLabels = project.labels || [];
                                     updateProject({ labels: currentLabels.filter(l => l !== label) });
                                   }}
-                                  className="cursor-pointer hover:bg-surface-hover hover:text-foreground"
+                                  className="cursor-pointer hover:bg-surface/70 hover:text-foreground"
                                 >
                                   <div className={cn("w-2 h-2 rounded-full mr-2", getLabelColor(label))}></div>
                                   <span className="flex-1">{label}</span>
@@ -1049,7 +1049,7 @@ const ProjectDetail = () => {
                                       setLabelSearchValue("");
                                       setSidebarLabelSearchOpen(false);
                                     }}
-                                    className="cursor-pointer hover:bg-surface-hover hover:text-foreground"
+                                    className="cursor-pointer hover:bg-surface/70 hover:text-foreground"
                                   >
                                     <div className={cn("w-2 h-2 rounded-full mr-2", labelInfo?.color || "bg-gray-500")}></div>
                                     {label}
@@ -1072,13 +1072,13 @@ const ProjectDetail = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-foreground">Milestones</h3>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
                   <Plus className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0"
+                  className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0"
                   onClick={() => setMilestonesExpanded(!milestonesExpanded)}
                 >
                   {milestonesExpanded ? (
@@ -1101,13 +1101,13 @@ const ProjectDetail = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-medium text-foreground">Activity</h3>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="h-6 text-xs hover:bg-surface-hover hover:text-foreground focus-visible:ring-0">
+                <Button variant="ghost" size="sm" className="h-6 text-xs hover:bg-surface/70 hover:text-foreground focus-visible:ring-0">
                   See all
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 hover:bg-surface-hover hover:text-foreground focus-visible:ring-0"
+                  className="h-6 w-6 hover:bg-surface/70 hover:text-foreground focus-visible:ring-0"
                   onClick={() => setActivityExpanded(!activityExpanded)}
                 >
                   {activityExpanded ? (

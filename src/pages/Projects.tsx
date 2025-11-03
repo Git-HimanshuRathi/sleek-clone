@@ -233,12 +233,12 @@ const Projects = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-background" style={{ marginTop: "-20px" }}>
+    <div className="h-full flex flex-col bg-background" style={{ marginTop: "8px" }}>
       {/* Top Navigation Bar with Tabs */}
       <div className="border-b border-border px-5" style={{ paddingTop: "8px", paddingBottom: "8px" }}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <nav className="flex items-center gap-1">
+               <div className="flex items-center gap-1 md:gap-2 overflow-x-auto">
+                 <nav className="flex items-center gap-1 flex-shrink-0">
               {/* Projects - Just text, not clickable, more prominent */}
               <span className="text-sm font-semibold text-foreground">Projects</span>
               
@@ -304,8 +304,8 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Filter and Display Bar */}
-      <div className="border-b flex items-center justify-between px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
+             {/* Filter and Display Bar */}
+             <div className="border-b flex items-center justify-between px-3 md:px-5 py-2" style={{ borderColor: "#1A1C1E" }}>
         <button
           className="flex items-center gap-1.5 h-7 px-2 rounded-md transition-colors"
           style={{
@@ -366,12 +366,13 @@ const Projects = () => {
         </div>
       )}
 
-      {/* Project Table */}
-      {!isLoading && !isError && (
-        <div className="flex-1 overflow-y-auto">
-          {projects.length > 0 ? (
-          <div className="px-5 py-3">
-            <table className="w-full border-collapse table-fixed">
+            {/* Project Table */}
+            {!isLoading && !isError && (
+              <div className="flex-1 overflow-y-auto">
+                {projects.length > 0 ? (
+                <div className="px-3 md:px-5 py-3">
+                  <div className="overflow-x-auto -mx-3 md:mx-0">
+                    <table className="w-full border-collapse table-fixed min-w-[600px]">
               <colgroup>
                 <col style={{ width: "auto" }} />
                 <col style={{ width: "150px" }} />
@@ -398,7 +399,7 @@ const Projects = () => {
                   return (
                     <tr
                       key={project.id}
-                      className="hover:bg-surface/50 transition-colors"
+                      className="hover:bg-surface/70 transition-colors"
                     >
                       {/* Name - Takes most space, no icon */}
                       <td className="py-2.5 px-4">
@@ -588,9 +589,10 @@ const Projects = () => {
                     </tr>
                   );
                 })}
-              </tbody>
-            </table>
-          </div>
+                    </tbody>
+                  </table>
+                  </div>
+                </div>
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="flex flex-col items-center gap-4 max-w-md text-center">
